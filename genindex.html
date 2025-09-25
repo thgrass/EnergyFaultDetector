@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; energy_fault_detector v0.1.1 documentation</title>
+  <title>Index &mdash; energy_fault_detector v0.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
     <link rel="shortcut icon" href="_static/favicon.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=5e3f2911"></script>
+      <script src="_static/documentation_options.js?v=683873e3"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -136,9 +136,11 @@
 </li>
       <li><a href="energy_fault_detector.utils.visualisation.html#energy_fault_detector.utils.visualisation.animate_corrected_input">animate_corrected_input() (in module energy_fault_detector.utils.visualisation)</a>
 </li>
-      <li><a href="energy_fault_detector.core.fault_detection_result.html#energy_fault_detector.core.fault_detection_result.FaultDetectionResult.anomaly_score">anomaly_score (FaultDetectionResult attribute)</a>
+      <li><a href="energy_fault_detector.core.fault_detection_model.html#energy_fault_detector.core.fault_detection_model.FaultDetectionModel.anomaly_score">anomaly_score (FaultDetectionModel attribute)</a>
 
       <ul>
+        <li><a href="energy_fault_detector.core.fault_detection_result.html#energy_fault_detector.core.fault_detection_result.FaultDetectionResult.anomaly_score">(FaultDetectionResult attribute)</a>
+</li>
         <li><a href="energy_fault_detector.fault_detector.html#energy_fault_detector.fault_detector.FaultDetector.anomaly_score">(FaultDetector attribute)</a>
 </li>
         <li><a href="energy_fault_detector.core.model_factory.html#energy_fault_detector.core.model_factory.ModelFactory.anomaly_score">(ModelFactory property)</a>
@@ -158,9 +160,11 @@
 </li>
       <li><a href="energy_fault_detector.core.autoencoder.html#energy_fault_detector.core.autoencoder.Autoencoder">Autoencoder (class in energy_fault_detector.core.autoencoder)</a>
 </li>
-      <li><a href="energy_fault_detector.fault_detector.html#energy_fault_detector.fault_detector.FaultDetector.autoencoder">autoencoder (FaultDetector attribute)</a>
+      <li><a href="energy_fault_detector.core.fault_detection_model.html#energy_fault_detector.core.fault_detection_model.FaultDetectionModel.autoencoder">autoencoder (FaultDetectionModel attribute)</a>
 
       <ul>
+        <li><a href="energy_fault_detector.fault_detector.html#energy_fault_detector.fault_detector.FaultDetector.autoencoder">(FaultDetector attribute)</a>
+</li>
         <li><a href="energy_fault_detector.core.model_factory.html#energy_fault_detector.core.model_factory.ModelFactory.autoencoder">(ModelFactory property)</a>
 </li>
       </ul></li>
@@ -194,6 +198,8 @@
 </li>
       <li><a href="energy_fault_detector.root_cause_analysis.arcana_utils.html#energy_fault_detector.root_cause_analysis.arcana_utils.calculate_mean_arcana_importances">calculate_mean_arcana_importances() (in module energy_fault_detector.root_cause_analysis.arcana_utils)</a>
 </li>
+      <li><a href="energy_fault_detector.core.autoencoder.html#energy_fault_detector.core.autoencoder.Autoencoder.callbacks">callbacks (Autoencoder attribute)</a>
+</li>
       <li><a href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset">Care2CompareDataset (class in energy_fault_detector.evaluation.care2compare)</a>
 </li>
       <li><a href="energy_fault_detector.evaluation.care_score.html#energy_fault_detector.evaluation.care_score.CAREScore">CAREScore (class in energy_fault_detector.evaluation.care_score)</a>
@@ -210,6 +216,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="energy_fault_detector.core.autoencoder.html#energy_fault_detector.core.autoencoder.Autoencoder.compile_model">compile_model() (Autoencoder method)</a>
 </li>
+      <li><a href="energy_fault_detector.autoencoders.conditional_autoencoder.html#energy_fault_detector.autoencoders.conditional_autoencoder.ConditionalAE">ConditionalAE (class in energy_fault_detector.autoencoders.conditional_autoencoder)</a>
+</li>
       <li><a href="energy_fault_detector.config.config.html#energy_fault_detector.config.config.Config">Config (class in energy_fault_detector.config.config)</a>
 </li>
       <li><a href="energy_fault_detector.utils.analysis.html#energy_fault_detector.utils.analysis.create_events">create_events() (in module energy_fault_detector.utils.analysis)</a>
@@ -219,6 +227,8 @@
       <li><a href="energy_fault_detector.core.autoencoder.html#energy_fault_detector.core.autoencoder.Autoencoder.create_model">create_model() (Autoencoder method)</a>
 
       <ul>
+        <li><a href="energy_fault_detector.autoencoders.conditional_autoencoder.html#energy_fault_detector.autoencoders.conditional_autoencoder.ConditionalAE.create_model">(ConditionalAE method)</a>
+</li>
         <li><a href="energy_fault_detector.autoencoders.multilayer_autoencoder.html#energy_fault_detector.autoencoders.multilayer_autoencoder.MultilayerAutoencoder.create_model">(MultilayerAutoencoder method)</a>
 </li>
         <li><a href="energy_fault_detector.threshold_selectors.adaptive_threshold.html#energy_fault_detector.threshold_selectors.adaptive_threshold.RegressionNN.create_model">(RegressionNN method)</a>
@@ -236,18 +246,20 @@
 </li>
       <li><a href="energy_fault_detector.config.config.html#energy_fault_detector.config.config.Config.data_clipping_params">data_clipping_params (Config property)</a>
 </li>
-      <li><a href="energy_fault_detector.fault_detector.html#energy_fault_detector.fault_detector.FaultDetector.data_preprocessor">data_preprocessor (FaultDetector attribute)</a>
+      <li><a href="energy_fault_detector.core.fault_detection_model.html#energy_fault_detector.core.fault_detection_model.FaultDetectionModel.data_preprocessor">data_preprocessor (FaultDetectionModel attribute)</a>
 
       <ul>
+        <li><a href="energy_fault_detector.fault_detector.html#energy_fault_detector.fault_detector.FaultDetector.data_preprocessor">(FaultDetector attribute)</a>
+</li>
         <li><a href="energy_fault_detector.core.model_factory.html#energy_fault_detector.core.model_factory.ModelFactory.data_preprocessor">(ModelFactory property)</a>
 </li>
       </ul></li>
       <li><a href="energy_fault_detector.config.config.html#energy_fault_detector.config.config.Config.data_split_params">data_split_params (Config property)</a>
 </li>
-      <li><a href="energy_fault_detector.data_preprocessing.data_clipper.html#energy_fault_detector.data_preprocessing.data_clipper.DataClipper">DataClipper (class in energy_fault_detector.data_preprocessing.data_clipper)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="energy_fault_detector.data_preprocessing.data_clipper.html#energy_fault_detector.data_preprocessing.data_clipper.DataClipper">DataClipper (class in energy_fault_detector.data_preprocessing.data_clipper)</a>
+</li>
       <li><a href="energy_fault_detector.data_preprocessing.data_preprocessor.html#energy_fault_detector.data_preprocessing.data_preprocessor.DataPreprocessor">DataPreprocessor (class in energy_fault_detector.data_preprocessing.data_preprocessor)</a>
 </li>
       <li><a href="energy_fault_detector.core.data_transformer.html#energy_fault_detector.core.data_transformer.DataTransformer">DataTransformer (class in energy_fault_detector.core.data_transformer)</a>
@@ -270,8 +282,14 @@
 </li>
       <li><a href="energy_fault_detector.core.autoencoder.html#energy_fault_detector.core.autoencoder.Autoencoder.encode">encode() (Autoencoder method)</a>
 </li>
-      <li><a href="energy_fault_detector.autoencoders.multilayer_autoencoder.html#energy_fault_detector.autoencoders.multilayer_autoencoder.MultilayerAutoencoder.encoder">encoder (MultilayerAutoencoder attribute)</a>
+      <li><a href="energy_fault_detector.core.autoencoder.html#energy_fault_detector.core.autoencoder.Autoencoder.encoder">encoder (Autoencoder attribute)</a>
+
+      <ul>
+        <li><a href="energy_fault_detector.autoencoders.conditional_autoencoder.html#energy_fault_detector.autoencoders.conditional_autoencoder.ConditionalAE.encoder">(ConditionalAE attribute)</a>
 </li>
+        <li><a href="energy_fault_detector.autoencoders.multilayer_autoencoder.html#energy_fault_detector.autoencoders.multilayer_autoencoder.MultilayerAutoencoder.encoder">(MultilayerAutoencoder attribute)</a>
+</li>
+      </ul></li>
       <li>
     energy_fault_detector
 
@@ -305,6 +323,13 @@
 
       <ul>
         <li><a href="energy_fault_detector.autoencoders.html#module-energy_fault_detector.autoencoders">module</a>
+</li>
+      </ul></li>
+      <li>
+    energy_fault_detector.autoencoders.conditional_autoencoder
+
+      <ul>
+        <li><a href="energy_fault_detector.autoencoders.conditional_autoencoder.html#module-energy_fault_detector.autoencoders.conditional_autoencoder">module</a>
 </li>
       </ul></li>
       <li>
@@ -440,6 +465,8 @@
         <li><a href="energy_fault_detector.data_preprocessing.duplicate_value_to_nan.html#module-energy_fault_detector.data_preprocessing.duplicate_value_to_nan">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     energy_fault_detector.data_preprocessing.low_unique_value_filter
 
@@ -447,8 +474,6 @@
         <li><a href="energy_fault_detector.data_preprocessing.low_unique_value_filter.html#module-energy_fault_detector.data_preprocessing.low_unique_value_filter">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     energy_fault_detector.data_splitting
 
@@ -758,8 +783,14 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="energy_fault_detector.autoencoders.multilayer_autoencoder.html#energy_fault_detector.autoencoders.multilayer_autoencoder.MultilayerAutoencoder.history">history (MultilayerAutoencoder attribute)</a>
+      <li><a href="energy_fault_detector.core.autoencoder.html#energy_fault_detector.core.autoencoder.Autoencoder.history">history (Autoencoder attribute)</a>
+
+      <ul>
+        <li><a href="energy_fault_detector.autoencoders.conditional_autoencoder.html#energy_fault_detector.autoencoders.conditional_autoencoder.ConditionalAE.history">(ConditionalAE attribute)</a>
 </li>
+        <li><a href="energy_fault_detector.autoencoders.multilayer_autoencoder.html#energy_fault_detector.autoencoders.multilayer_autoencoder.MultilayerAutoencoder.history">(MultilayerAutoencoder attribute)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -788,6 +819,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="energy_fault_detector.core.autoencoder.html#energy_fault_detector.core.autoencoder.Autoencoder.is_conditional">is_conditional (Autoencoder attribute)</a>
+</li>
       <li><a href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.iter_datasets">iter_datasets() (Care2CompareDataset method)</a>
 </li>
       <li><a href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.iter_formatted_datasets">iter_formatted_datasets() (Care2CompareDataset method)</a>
@@ -836,8 +869,14 @@
 </li>
       <li><a href="energy_fault_detector.main.html#energy_fault_detector.main.Options.min_anomaly_length">min_anomaly_length (Options attribute)</a>
 </li>
-      <li><a href="energy_fault_detector.autoencoders.multilayer_autoencoder.html#energy_fault_detector.autoencoders.multilayer_autoencoder.MultilayerAutoencoder.model">model (MultilayerAutoencoder attribute)</a>
+      <li><a href="energy_fault_detector.core.autoencoder.html#energy_fault_detector.core.autoencoder.Autoencoder.model">model (Autoencoder attribute)</a>
+
+      <ul>
+        <li><a href="energy_fault_detector.autoencoders.conditional_autoencoder.html#energy_fault_detector.autoencoders.conditional_autoencoder.ConditionalAE.model">(ConditionalAE attribute)</a>
 </li>
+        <li><a href="energy_fault_detector.autoencoders.multilayer_autoencoder.html#energy_fault_detector.autoencoders.multilayer_autoencoder.MultilayerAutoencoder.model">(MultilayerAutoencoder attribute)</a>
+</li>
+      </ul></li>
       <li><a href="energy_fault_detector.core.fault_detection_result.html#energy_fault_detector.core.fault_detection_result.ModelMetadata.model_date">model_date (ModelMetadata attribute)</a>
 </li>
       <li><a href="energy_fault_detector.core.fault_detection_result.html#energy_fault_detector.core.fault_detection_result.ModelMetadata.model_path">model_path (ModelMetadata attribute)</a>
@@ -859,6 +898,8 @@
         <li><a href="energy_fault_detector.anomaly_scores.rmse_score.html#module-energy_fault_detector.anomaly_scores.rmse_score">energy_fault_detector.anomaly_scores.rmse_score</a>
 </li>
         <li><a href="energy_fault_detector.autoencoders.html#module-energy_fault_detector.autoencoders">energy_fault_detector.autoencoders</a>
+</li>
+        <li><a href="energy_fault_detector.autoencoders.conditional_autoencoder.html#module-energy_fault_detector.autoencoders.conditional_autoencoder">energy_fault_detector.autoencoders.conditional_autoencoder</a>
 </li>
         <li><a href="energy_fault_detector.autoencoders.multilayer_autoencoder.html#module-energy_fault_detector.autoencoders.multilayer_autoencoder">energy_fault_detector.autoencoders.multilayer_autoencoder</a>
 </li>
@@ -1089,15 +1130,23 @@
 </li>
       <li><a href="energy_fault_detector.core.fault_detection_model.html#energy_fault_detector.core.fault_detection_model.FaultDetectionModel.save_models">save_models() (FaultDetectionModel method)</a>
 </li>
-      <li><a href="energy_fault_detector.core.save_load_mixin.html#energy_fault_detector.core.save_load_mixin.SaveLoadMixin">SaveLoadMixin (class in energy_fault_detector.core.save_load_mixin)</a>
+      <li><a href="energy_fault_detector.core.fault_detection_model.html#energy_fault_detector.core.fault_detection_model.FaultDetectionModel.save_timestamps">save_timestamps (FaultDetectionModel attribute)</a>
+
+      <ul>
+        <li><a href="energy_fault_detector.fault_detector.html#energy_fault_detector.fault_detector.FaultDetector.save_timestamps">(FaultDetector attribute)</a>
 </li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="energy_fault_detector.core.save_load_mixin.html#energy_fault_detector.core.save_load_mixin.SaveLoadMixin">SaveLoadMixin (class in energy_fault_detector.core.save_load_mixin)</a>
+</li>
       <li><a href="energy_fault_detector.anomaly_scores.rmse_score.html#energy_fault_detector.anomaly_scores.rmse_score.RMSEScore.scale">scale (RMSEScore attribute)</a>
 </li>
       <li><a href="energy_fault_detector.quick_fault_detection.configuration.html#energy_fault_detector.quick_fault_detection.configuration.select_config">select_config() (in module energy_fault_detector.quick_fault_detection.configuration)</a>
 </li>
       <li><a href="energy_fault_detector.data_splitting.data_splitter.html#energy_fault_detector.data_splitting.data_splitter.BlockDataSplitter.split">split() (BlockDataSplitter method)</a>
+</li>
+      <li><a href="energy_fault_detector.core.autoencoder.html#energy_fault_detector.core.autoencoder.split_inputs">split_inputs() (in module energy_fault_detector.core.autoencoder)</a>
 </li>
       <li><a href="energy_fault_detector.main.html#energy_fault_detector.main.Options.status_data_column_name">status_data_column_name (Options attribute)</a>
 </li>
@@ -1121,9 +1170,11 @@
         <li><a href="energy_fault_detector.core.threshold_selector.html#energy_fault_detector.core.threshold_selector.ThresholdSelector.threshold">(ThresholdSelector attribute)</a>
 </li>
       </ul></li>
-      <li><a href="energy_fault_detector.fault_detector.html#energy_fault_detector.fault_detector.FaultDetector.threshold_selector">threshold_selector (FaultDetector attribute)</a>
+      <li><a href="energy_fault_detector.core.fault_detection_model.html#energy_fault_detector.core.fault_detection_model.FaultDetectionModel.threshold_selector">threshold_selector (FaultDetectionModel attribute)</a>
 
       <ul>
+        <li><a href="energy_fault_detector.fault_detector.html#energy_fault_detector.fault_detector.FaultDetector.threshold_selector">(FaultDetector attribute)</a>
+</li>
         <li><a href="energy_fault_detector.core.model_factory.html#energy_fault_detector.core.model_factory.ModelFactory.threshold_selector">(ModelFactory property)</a>
 </li>
       </ul></li>

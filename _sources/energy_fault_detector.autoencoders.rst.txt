@@ -11,4 +11,5 @@ energy\_fault\_detector.autoencoders
 .. toctree::
    :maxdepth: 4
 
+   energy_fault_detector.autoencoders.conditional_autoencoder
    energy_fault_detector.autoencoders.multilayer_autoencoder

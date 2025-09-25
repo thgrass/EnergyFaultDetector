@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>energy_fault_detector.root_cause_analysis.arcana &mdash; energy_fault_detector v0.1.1 documentation</title>
+  <title>energy_fault_detector.root_cause_analysis.arcana &mdash; energy_fault_detector v0.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -16,7 +16,7 @@
     <link rel="shortcut icon" href="_static/favicon.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=5e3f2911"></script>
+      <script src="_static/documentation_options.js?v=683873e3"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -162,15 +162,18 @@ ARCANA calculations are sufficiently fast. Default is 1000</p></li>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="energy_fault_detector.root_cause_analysis.arcana.Arcana.draw_samples">
-<span class="sig-name descname"><span class="pre">draw_samples</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.root_cause_analysis.arcana.Arcana.draw_samples" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">draw_samples</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.root_cause_analysis.arcana.Arcana.draw_samples" title="Link to this definition"></a></dt>
 <dd><p>Selects index values from 0 to data_length by choosing the indexes with the highest anomaly score,
 for defining the ARCANA samples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>x</strong> (<em>np.array</em>) – Data of which samples should be drawn</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – Data of which samples should be drawn</p></li>
+<li><p><strong>conditions</strong> (<em>np.ndarray</em>) – (optional) Array of conditional features values</p></li>
+</ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>array of booleans defining the selected samples.</p>
@@ -211,11 +214,15 @@ tracked_losses: A dataframe containing the combined loss, loss 1 (reconstruction
 
 <dl class="py method">
 <dt class="sig sig-object py" id="energy_fault_detector.root_cause_analysis.arcana.Arcana.initialize_x_bias">
-<span class="sig-name descname"><span class="pre">initialize_x_bias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.root_cause_analysis.arcana.Arcana.initialize_x_bias" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">initialize_x_bias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.root_cause_analysis.arcana.Arcana.initialize_x_bias" title="Link to this definition"></a></dt>
 <dd><p>Initialize the ARCANA bias vector.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>x</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></span>) – numpy array containing data.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – numpy array containing input data.</p></li>
+<li><p><strong>conditions</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – numpy array containing conditional data - for conditional autoencoders.
+Defaults to None.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></span></p>
@@ -228,14 +235,15 @@ tracked_losses: A dataframe containing the combined loss, loss 1 (reconstruction
 
 <dl class="py method">
 <dt class="sig sig-object py" id="energy_fault_detector.root_cause_analysis.arcana.Arcana.update_x_bias">
-<span class="sig-name descname"><span class="pre">update_x_bias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_bias</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.root_cause_analysis.arcana.Arcana.update_x_bias" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">update_x_bias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_bias</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.root_cause_analysis.arcana.Arcana.update_x_bias" title="Link to this definition"></a></dt>
 <dd><p>This function builds a tensor which can calculate the ARCANA loss (full_loss) and computes the gradient
 of that loss with respect to the Variable x + x_bias using tensorflow GradientTape.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Variable</span></code></span>) – numpy array containing data</p></li>
-<li><p><strong>x_bias</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Variable</span></code></span>) – numpy array containing the current ARCANA bias.</p></li>
+<li><p><strong>x</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Variable</span></code></span>) – tensorflow variable containing input data</p></li>
+<li><p><strong>x_bias</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Variable</span></code></span>) – tensorflow variable containing the current ARCANA bias.</p></li>
+<li><p><strong>conditions</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></span>) – (optional) tensor containing the conditional feature values.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
