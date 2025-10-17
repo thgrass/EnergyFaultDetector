@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>energy_fault_detector.evaluation.care_score &mdash; energy_fault_detector v0.2.0 documentation</title>
+  <title>energy_fault_detector.evaluation.care_score &mdash; energy_fault_detector v0.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -16,7 +16,7 @@
     <link rel="shortcut icon" href="_static/favicon.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=683873e3"></script>
+      <script src="_static/documentation_options.js?v=19ed39ba"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -51,6 +51,9 @@
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="energy_fault_detector.html">The Energy Fault Detector package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.html#energy_fault_detector.Config"><code class="docutils literal notranslate"><span class="pre">Config</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.html#energy_fault_detector.FaultDetector"><code class="docutils literal notranslate"><span class="pre">FaultDetector</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.html#energy_fault_detector.quick_fault_detector"><code class="docutils literal notranslate"><span class="pre">quick_fault_detector()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.anomaly_scores.html">energy_fault_detector.anomaly_scores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.autoencoders.html">energy_fault_detector.autoencoders</a></li>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.config.html">energy_fault_detector.config</a></li>
@@ -108,107 +111,286 @@
 <span id="energy-fault-detector-evaluation-care-score"></span><h1>energy_fault_detector.evaluation.care_score<a class="headerlink" href="#module-energy_fault_detector.evaluation.care_score" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="energy_fault_detector.evaluation.care_score.CAREScore">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CAREScore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coverage_beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eventwise_f_score_beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coverage_w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accuracy_w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weighted_score_w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eventwise_f_score_w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criticality_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">72</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_fraction_anomalous_timestamps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ws_start_of_descend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">4)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anomaly_detection_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'criticality'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.evaluation.care_score.CAREScore" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Calculate CARE Score (coverage, accuracy, reliability, and earliness) for an anomaly detection algorithm, as
-described in the paper ‘CARE to Compare: A Real-World Benchmark Dataset for Early Fault Detection in Wind Turbine
-Data’ (<a class="reference external" href="https://doi.org/10.3390/data9120138">https://doi.org/10.3390/data9120138</a>).</p>
-<p>For each normal and anomalous event in your dataset call <cite>evaluate_event</cite>. Afterwards, call <cite>get_final_score</cite>
-to calculate the CARE score of your model.</p>
-<p>Coverage is measured by the pointwise F-Score of anomalous events, the accuracy measured as the accuracy of normal
-events, the reliability by the eventwise F-score over all events and the earliness as weighted score over anomalous
-events.</p>
-<p>The method <cite>evaluate_event</cite> calculates the coverage, accuracy and weighted score for a specific event, as well as
-whether the event was detected as anomaly or not. It collects this information in a dataframe.
-Finally, the <cite>get_final_score</cite> is called to calculate the CARE score over all (or a part of the) evaluated events.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>coverage_beta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Beta parameter for coverage F-score calculation. Default is 1.0.</p></li>
-<li><p><strong>eventwise_f_score_beta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Beta parameter for event-wise F-score calculation. Default is 1.0.</p></li>
-<li><p><strong>coverage_w</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Weight for coverage in the final CARE score calculation. Default is 1.0.</p></li>
-<li><p><strong>accuracy_w</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Weight for accuracy in the final CARE score calculation. Default is 2.0.</p></li>
-<li><p><strong>weighted_score_w</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Weight for the weighted score in the final CARE score calculation. Default is 1.0.</p></li>
-<li><p><strong>eventwise_f_score_w</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Weight for the event-wise F-score in the final CARE score calculation.
-Default is 1.0.</p></li>
-<li><p><strong>anomaly_detection_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Method used to calculate anomaly detection score. Either criticality or
-fraction. Default is ‘criticality’. If fraction is used, an event is detected as anomaly if at least
-<cite>min_fraction_anomalous_timestamps</cite> of the ‘normal’ timestamps are detected as anomaly. If criticality is
-used, an event is detected as anomaly if the maximum criticality exceed criticality_threshold.</p></li>
-<li><p><strong>criticality_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Threshold for criticality. If criticality exceeds this threshold, the event will be
-counted as an anomaly event (if anomaly_detection_method = criticality). Default is 72.</p></li>
-<li><p><strong>min_fraction_anomalous_timestamps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Minimum fraction of anomalous timestamps to consider an event
-detected (if anomaly_detection_method = fraction). Default is 0.1.</p></li>
-<li><p><strong>ws_start_of_descend</strong> (<em>Tuple</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Must be a fraction (tuple with numerator and denominator) between 0
-and 1. It determines the point after which the scoring weights for the weighted score decrease.
-Default is (1, 4).</p></li>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CAREScore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coverage_beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reliability_beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coverage_w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accuracy_w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">earliness_w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reliability_w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criticality_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">72</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_fraction_anomalous</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ws_start_of_descend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">4)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anomaly_detection_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'criticality'</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_fraction_anomalous_timestamps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eventwise_f_score_beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weighted_score_w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eventwise_f_score_w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.evaluation.care_score.CAREScore" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Calculate the CARE score for early fault-detection algorithms.</p>
+<p>The CARE score combines Coverage, Accuracy, Reliability and Earliness to evaluate early fault-detection performance
+(see CARE to Compare: A Real-World Benchmark Dataset for Early Fault Detection in Wind Turbine Data,</p>
+<blockquote>
+<div><p><a class="reference external" href="https://doi.org/10.3390/data9120138">https://doi.org/10.3390/data9120138</a>). The goal of the CARE-Score is to evaluate the ability of a given model to</p>
+</div></blockquote>
+<p>separate <cite>normal behavior</cite> from <cite>actionable anomalies</cite> (see glossary for definitions), that lead to a fault or
+indicate a fault.</p>
+<dl class="simple">
+<dt>Usage:</dt><dd><p>For each event in your dataset call <cite>evaluate_event</cite>. Afterward, call <cite>get_final_score</cite> to calculate the
+CARE-score of your model.</p>
+</dd>
+<dt>Requirements:</dt><dd><p>For calculating the CARE-Score presence of at least one evaluated <cite>anomaly-event</cite> and at least one
+evaluated <cite>normal event</cite> (see glossary below) is required.</p>
+</dd>
+<dt>Glossary:</dt><dd><ul class="simple">
+<li><p>normal behavior: Data points representing expected system behavior.</p></li>
+<li><p>actionable anomaly: Unexpected system behavior where maintenance could prevent a fault.</p></li>
+<li><p>non-actionable anomaly: Neither normal behavior nor actionable anomaly (e.g. turbine shut down due to
+maintenance actions).</p></li>
+<li><p>anomaly event: A sequence labeled with actionable anomalies within the prediction window.</p></li>
+<li><p>normal event: A sequence containing normal behavior within the prediction window.</p></li>
+<li><p>normal_index: Boolean mask separating normal behavior (True) from non-actionable anomaly (False).</p></li>
+<li><p>Coverage: Pointwise F-score on anomaly-events.</p></li>
+<li><p>Accuracy: Accuracy on normal-events.</p></li>
+<li><p>Reliability: Eventwise F-score across evaluated events.</p></li>
+<li><p>Earliness: Weighted score measuring how early an anomaly is detected.</p></li>
+<li><p>criticality: Counting measure applied to the prediction of anomaly detection models.
+Used for criticality-based detection. For a detailed explanation see Algorithm 1 in the paper
+(<a class="reference external" href="https://doi.org/10.3390/data9120138">https://doi.org/10.3390/data9120138</a>).
+Choose a criticality threshold based on application needs: e.g. how many anomalous points need to be observed
+in advance to be actionable? After how many anomalous data points is an anomaly significant?</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="energy_fault_detector.evaluation.care_score.CAREScore.create_ground_truth">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_ground_truth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_label</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.evaluation.care_score.CAREScore.create_ground_truth" title="Link to this definition"></a></dt>
-<dd><p>Create the ground truth labels based on the provided inputs.</p>
+<p>Initialize CAREScore.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>event_start</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>pd.Timestamp</em>) – Start index/timestamp of the event.</p></li>
-<li><p><strong>event_end</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>pd.Timestamp</em>) – End index/timestamp of the event.</p></li>
-<li><p><strong>normal_index</strong> (<em>pd.Series</em>) – Boolean mask indicating normal samples.</p></li>
-<li><p><strong>event_label</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – True label indicating the type of the event (anomaly or normal).</p></li>
+<li><p><strong>coverage_beta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Beta parameter for Coverage (pointwise F-score). Default: 0.5.</p></li>
+<li><p><strong>reliability_beta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Beta parameter for Reliability (event-wise F-score). Default: 0.5.</p></li>
+<li><p><strong>coverage_w</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Weight for Coverage (point-wise F-Score) in the final CARE-score. Default: 1.0.</p></li>
+<li><p><strong>accuracy_w</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Weight for Accuracy in the final CARE-score. Default: 2.0.</p></li>
+<li><p><strong>reliability_w</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Weight for Reliability (eventwise F-score) in the final CARE-score. Default: 1.0.</p></li>
+<li><p><strong>earliness_w</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Weight for Earliness (weighted score) in the final CARE-score. Default: 1.0.</p></li>
+<li><p><strong>anomaly_detection_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Method used to calculate anomaly detection score. Either ‘criticality’ or
+‘fraction’. Default: ‘criticality’.</p></li>
+<li><p><strong>criticality_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Threshold for criticality-based detection. Default: 72.
+If the criticality exceeds this threshold, the event will be detected as an anomaly.</p></li>
+<li><p><strong>min_fraction_anomalous</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Threshold for fraction-based detection. Default: 0.1.
+If the fraction of event data points exceeds this threshold, the event will be detected as an anomaly.</p></li>
+<li><p><strong>ws_start_of_descend</strong> (<em>Tuple</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em>) – Fraction (numerator, denominator) where weights start to decay for
+the Earliness-Score (weighted score). Default is (1, 4).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If anomaly_detection_method is not ‘criticality’ or ‘fraction’.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="energy_fault_detector.evaluation.care_score.CAREScore.calculate_avg_accuracy">
+<span class="sig-name descname"><span class="pre">calculate_avg_accuracy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_selection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.evaluation.care_score.CAREScore.calculate_avg_accuracy" title="Link to this definition"></a></dt>
+<dd><p>Return the average Accuracy across normal events.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>event_selection</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em><em>, </em><em>optional</em>) – List of event IDs to include.
+Default: None (use all evaluated events).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Mean accuracy for selected normal events. Returns numpy.nan if no normal events are selected.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="energy_fault_detector.evaluation.care_score.CAREScore.calculate_avg_coverage">
+<span class="sig-name descname"><span class="pre">calculate_avg_coverage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_selection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.evaluation.care_score.CAREScore.calculate_avg_coverage" title="Link to this definition"></a></dt>
+<dd><p>Return the average Coverage (pointwise F-score) for anomaly events.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>event_selection</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em><em>, </em><em>optional</em>) – List of event IDs to include.
+Default: None (use all evaluated events).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Mean f_beta_score for selected anomaly events. Returns numpy.nan if no anomaly events are selected.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="energy_fault_detector.evaluation.care_score.CAREScore.calculate_avg_earliness">
+<span class="sig-name descname"><span class="pre">calculate_avg_earliness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_selection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.evaluation.care_score.CAREScore.calculate_avg_earliness" title="Link to this definition"></a></dt>
+<dd><p>Return the average Earliness (weighted score) for anomaly events.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>event_selection</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em><em>, </em><em>optional</em>) – List of event IDs to include.
+Default: None (use all evaluated events).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Mean weighted_score for selected anomaly events. Returns numpy.nan if no anomaly events are selected.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="energy_fault_detector.evaluation.care_score.CAREScore.calculate_reliability">
+<span class="sig-name descname"><span class="pre">calculate_reliability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_selection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.evaluation.care_score.CAREScore.calculate_reliability" title="Link to this definition"></a></dt>
+<dd><p>Compute the Reliability (event-wise F-score) for selected events.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event_selection</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em><em>, </em><em>optional</em>) – List of event IDs to include.
+Default: None (use all evaluated events).</p></li>
+<li><p><strong>kwargs</strong> – Other keyword args for sklearn’s fbeta_score.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Ground truth labels. True if the timestamp is an anomaly, False otherwise.</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>Event-wise F-score computed with beta=self.reliability_beta.</dt><dd><p>If there are no positive labels or predictions, sklearn’s fbeta_score behavior
+is controlled by zero_division.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="energy_fault_detector.evaluation.care_score.CAREScore.create_ground_truth">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_ground_truth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_label</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.evaluation.care_score.CAREScore.create_ground_truth" title="Link to this definition"></a></dt>
+<dd><p>Create the ground truth labels based on the event_start, event_end, normal_index and event_label.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event_start</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>pd.Timestamp</em>) – Start index/timestamp of the event.</p></li>
+<li><p><strong>event_end</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>pd.Timestamp</em>) – End index/timestamp of the event.</p></li>
+<li><p><strong>normal_index</strong> (<em>pd.Series</em>) – Boolean mask indicating normal samples. Must be indexed compatibly with
+event_start/event_end.</p></li>
+<li><p><strong>event_label</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – ‘anomaly’ or ‘normal’. True label indicating the type of the event.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Boolean series indexed like normal_index. True indicates anomaly (actionable and non-actionable),</dt><dd><p>False otherwise.</p>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pd.Series</p>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The returned series is sorted by index.</p></li>
+<li><p>If event_label == ‘anomaly’, values in the interval [event_start:event_end] are set to True.</p></li>
+<li><p>normal_index is inverted to start (anomalies = not normal), then the event window is applied.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="energy_fault_detector.evaluation.care_score.CAREScore.evaluate_event">
-<span class="sig-name descname"><span class="pre">evaluate_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicted_anomalies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_normal_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.evaluation.care_score.CAREScore.evaluate_event" title="Link to this definition"></a></dt>
-<dd><p>Evaluate the performance of an anomaly detection model for a given event.</p>
+<span class="sig-name descname"><span class="pre">evaluate_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicted_anomalies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluate_until_event_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_normal_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.evaluation.care_score.CAREScore.evaluate_event" title="Link to this definition"></a></dt>
+<dd><p>Evaluate the prediction of a fault detection model for a single event.</p>
+<p>If a normal_index is provided, metrics are computed only for timestamps where normal_index is True
+(unless ignore_normal_index is True).</p>
+<p>The argument <cite>evaluate_until_event_end</cite> determines which part of the provided data is used for
+evaluation. It might be useful to set this to True or <cite>anomaly_only</cite> if you expect normal behaviour may change
+after a fault.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>event_start</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>pd.Timestamp</em>) – Start index/timestamp of the event.</p></li>
-<li><p><strong>event_end</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>pd.Timestamp</em>) – End index/timestamp of the event.</p></li>
-<li><p><strong>event_label</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – True label of the event. This can be either ‘anomaly’ or ‘normal’.</p></li>
-<li><p><strong>normal_index</strong> (<em>pd.Series</em>) – Boolean mask indicating normal timestamps. ID int as index.</p></li>
-<li><p><strong>predicted_anomalies</strong> (<em>pd.Series</em>) – Boolean pandas series, indicating an anomaly was detected. ID int as index.</p></li>
-<li><p><strong>event_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – ID of event. If not specified, a counter is used instead.</p></li>
-<li><p><strong>ignore_normal_index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether to ignore the normal index and evaluate all timestamps in the prediction
+<li><p><strong>event_start</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>pd.Timestamp</em>) – Start index/timestamp of the event.</p></li>
+<li><p><strong>event_end</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>pd.Timestamp</em>) – End index/timestamp of the event.</p></li>
+<li><p><strong>event_label</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – True label of the event. This can be either ‘anomaly’ or ‘normal’.</p></li>
+<li><p><strong>predicted_anomalies</strong> (<em>pd.Series</em>) – Boolean pandas series, indicating whether an anomaly was detected.
+Index must match the data type of <cite>event_start</cite> and <cite>event_end</cite>.</p></li>
+<li><p><strong>normal_index</strong> (<em>pd.Series</em><em>, </em><em>optional</em>) – Boolean mask marking normal operation (True) vs non-actionable anomaly
+(False). Index must match the data type of <cite>event_start</cite> and <cite>event_end</cite>. Default: None.</p></li>
+<li><p><strong>evaluate_until_event_end</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, evaluation is capped at event_end for all events.
+Allowed string values: ‘normal_only’, ‘anomaly_only’. Default: False.</p></li>
+<li><p><strong>event_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – ID of event. If not specified, a counter is used instead. Defaults to None.</p></li>
+<li><p><strong>ignore_normal_index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to ignore the normal index and evaluate all data points in the prediction
 or test dataset. Default False.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dictionary containing the calculated metrics.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]</p>
+<dd class="field-even"><p><dl>
+<dt>Dictionary with computed metrics, e.g.:</dt><dd><dl class="simple">
+<dt>{</dt><dd><p>‘event_id’: int,
+‘event_label’: str,
+‘weighted_score’: float,
+‘max_criticality’: float,
+‘f_beta_score’: float or NaN,
+‘accuracy’: float,
+‘tp’: int, ‘fp’: int, ‘tn’: int, ‘fn’: int</p>
 </dd>
 </dl>
+<p>}</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If event_label is invalid, evaluate_until_event_end has an unknown value,
+    or if no data could be selected for the event.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function sorts inputs by index to ensure alignment.</p></li>
+<li><p>If normal_index is provided, this also influences the criticality calculation: criticality does not change</p></li>
+</ul>
+<p>if the expected behaviour is not normal.
+- If predicted_anomalies_event is empty, a ValueError is raised.
+- Use evaluate_until_event_end to control whether post-event predictions are considered.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="energy_fault_detector.evaluation.care_score.CAREScore.evaluated_events">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">evaluated_events</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#energy_fault_detector.evaluation.care_score.CAREScore.evaluated_events" title="Link to this definition"></a></dt>
-<dd><p>Pandas DataFrame with evaluated events.</p>
+<dd><p>Returns a DataFrame with evaluated events.</p>
+<p>The DataFrame is built from the internal evaluated-events list. If the DataFrame is non-empty,
+an additional column ‘anomaly_detected’ is computed:</p>
+<ul class="simple">
+<li><p>If anomaly_detection_method == ‘criticality’: anomaly_detected = max_criticality &gt;= criticality_threshold</p></li>
+<li><p>Else (fraction-based): anomaly_detected = (tp + fp) / (tp + fp + fn + tn) &gt;= min_fraction_anomalous</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>DataFrame containing evaluated event records. Expected columns include:</dt><dd><ul class="simple">
+<li><p>event_id (int)</p></li>
+<li><p>event_label (str)</p></li>
+<li><p>weighted_score (float)</p></li>
+<li><p>max_criticality (float)</p></li>
+<li><p>tp, fp, tn, fn (ints)</p></li>
+<li><p>f_beta_score, accuracy (floats)</p></li>
+<li><p>anomaly_detected (bool) — added as described above.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="energy_fault_detector.evaluation.care_score.CAREScore.get_final_score">
-<span class="sig-name descname"><span class="pre">get_final_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_selection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.evaluation.care_score.CAREScore.get_final_score" title="Link to this definition"></a></dt>
-<dd><p>Calculate the CARE score over all events in self.evaluated_events or a selection of the events.</p>
+<span class="sig-name descname"><span class="pre">get_final_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_selection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criticality_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_fraction_anomalous</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.evaluation.care_score.CAREScore.get_final_score" title="Link to this definition"></a></dt>
+<dd><p>Calculate the CARE-score for selected evaluated events.</p>
+<p>The CARE score combines average Coverage (pointwise F-score for anomaly events), average Earliness (weighted
+score for anomaly events), average Accuracy (for normal events) and Reliability (eventwise F-score) using the
+configured weights.</p>
 <dl class="simple">
-<dt>If the average accuracy over all normal events &lt; 0.5, CARE score = average accuracy over all normal events</dt><dd><p>(worse than random guessing).</p>
+<dt>If the average accuracy over all normal events &lt; 0.5, CARE-score = average accuracy over all normal events</dt><dd><p>(worse than random guessing).</p>
 </dd>
 </dl>
-<p>If no anomalies were detected, the CARE score = 0.
-Else, the CARE score is calculated as:</p>
+<p>If no anomalies were detected, the CARE-score = 0.
+Else, the CARE-score is calculated as:</p>
 <blockquote>
 <div><dl class="simple">
 <dt>( (average F-score over all anomaly events) * coverage_w</dt><dd><ul class="simple">
@@ -221,11 +403,23 @@ Else, the CARE score is calculated as:</p>
 </div></blockquote>
 <p>where <cite>sum_of_weights</cite> = coverage_w + weighted_score_w + accuracy_w + eventwise_f_score_w.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>CARE score</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event_selection</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em>) – list of event IDs to include. Default: None (use all).</p></li>
+<li><p><strong>criticality_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – If provided and anomaly_detection_method == ‘criticality’, override the stored
+threshold for this calculation.</p></li>
+<li><p><strong>min_fraction_anomalous</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – If provided and anomaly_detection_method == ‘fraction’,  override the stored
+min_fraction_anomalous for this calculation.</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>CARE-score</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the selected events do not contain at least one normal and one anomalous event.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -233,13 +427,13 @@ Else, the CARE score is calculated as:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="energy_fault_detector.evaluation.care_score.CAREScore.load_evaluated_events">
 <span class="sig-name descname"><span class="pre">load_evaluated_events</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.evaluation.care_score.CAREScore.load_evaluated_events" title="Link to this definition"></a></dt>
-<dd><p>Load evaluated events from a CSV file.</p>
+<dd><p>Load evaluated events from a CSV file and replace the internal evaluated-events list.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>file_path</strong> (<em>Path</em>) – The file path from which the evaluated events will be loaded.</p>
+<dd class="field-odd"><p><strong>file_path</strong> (<em>Path</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The file path from which the evaluated events will be loaded.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -247,13 +441,13 @@ Else, the CARE score is calculated as:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="energy_fault_detector.evaluation.care_score.CAREScore.save_evaluated_events">
 <span class="sig-name descname"><span class="pre">save_evaluated_events</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.evaluation.care_score.CAREScore.save_evaluated_events" title="Link to this definition"></a></dt>
-<dd><p>Save the evaluated events to a CSV file.</p>
+<dd><p>Write the evaluated events to a CSV file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>file_path</strong> (<em>Path</em>) – The file path where the evaluated events will be saved.</p>
+<dd class="field-odd"><p><strong>file_path</strong> (<em>Path</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The file path where the evaluated events will be saved.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>

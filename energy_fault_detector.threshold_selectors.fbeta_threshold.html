@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>energy_fault_detector.threshold_selectors.fbeta_threshold &mdash; energy_fault_detector v0.2.0 documentation</title>
+  <title>energy_fault_detector.threshold_selectors.fbeta_threshold &mdash; energy_fault_detector v0.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -16,7 +16,7 @@
     <link rel="shortcut icon" href="_static/favicon.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=683873e3"></script>
+      <script src="_static/documentation_options.js?v=19ed39ba"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -51,6 +51,9 @@
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="energy_fault_detector.html">The Energy Fault Detector package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.html#energy_fault_detector.Config"><code class="docutils literal notranslate"><span class="pre">Config</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.html#energy_fault_detector.FaultDetector"><code class="docutils literal notranslate"><span class="pre">FaultDetector</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.html#energy_fault_detector.quick_fault_detector"><code class="docutils literal notranslate"><span class="pre">quick_fault_detector()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.anomaly_scores.html">energy_fault_detector.anomaly_scores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.autoencoders.html">energy_fault_detector.autoencoders</a></li>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.config.html">energy_fault_detector.config</a></li>
@@ -116,12 +119,12 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>beta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – beta weights the importance between precision and recall in the fbeta score. For example
+<li><p><strong>beta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – beta weights the importance between precision and recall in the fbeta score. For example
 beta=2.0 means recall is twice as important as precision and beta=0.5 means the opposite.
 Defaults to 0.5.</p></li>
-<li><p><strong>eps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – small number, to ensure the optimal threshold is just below the anomaly score resulting in the optimal
+<li><p><strong>eps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – small number, to ensure the optimal threshold is just below the anomaly score resulting in the optimal
 fbeta score.</p></li>
-<li><p><strong>quantile</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – optional parameter that can introduce score smoothing. This parameter specifies a quantile which
+<li><p><strong>quantile</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – optional parameter that can introduce score smoothing. This parameter specifies a quantile which
 is used during self.fit to neglect all normal anomaly-scores that are greater than the quantile of all
 normal anomaly-scores. It must be a float between 0 and 1, where 1 practically disables the score smoothing.</p></li>
 </ul>
@@ -133,7 +136,7 @@ normal anomaly-scores. It must be a float between 0 and 1, where 1 practically d
 <dd><p>scores above the threshold is classified as anomaly, below is classified as normal.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
 </dd>
 </dl>
 </dd></dl>

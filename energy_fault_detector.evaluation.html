@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>energy_fault_detector.evaluation &mdash; energy_fault_detector v0.2.0 documentation</title>
+  <title>energy_fault_detector.evaluation &mdash; energy_fault_detector v0.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -16,7 +16,7 @@
     <link rel="shortcut icon" href="_static/favicon.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=683873e3"></script>
+      <script src="_static/documentation_options.js?v=19ed39ba"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -51,6 +51,9 @@
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="energy_fault_detector.html">The Energy Fault Detector package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.html#energy_fault_detector.Config"><code class="docutils literal notranslate"><span class="pre">Config</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.html#energy_fault_detector.FaultDetector"><code class="docutils literal notranslate"><span class="pre">FaultDetector</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.html#energy_fault_detector.quick_fault_detector"><code class="docutils literal notranslate"><span class="pre">quick_fault_detector()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.anomaly_scores.html">energy_fault_detector.anomaly_scores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.autoencoders.html">energy_fault_detector.autoencoders</a></li>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.config.html">energy_fault_detector.config</a></li>
@@ -107,20 +110,32 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html">energy_fault_detector.evaluation.care2compare</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.format_event_dataset"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.format_event_dataset()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.get_dataset_for_event"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.get_dataset_for_event()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.get_event_info"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.get_event_info()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.get_formatted_event_dataset"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.get_formatted_event_dataset()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.iter_datasets"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.iter_datasets()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.format_event_dataset"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.format_event_dataset()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.iter_formatted_datasets"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.iter_formatted_datasets()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.load_event_dataset"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.load_event_dataset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.load_and_format_event_dataset"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.load_and_format_event_dataset()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.iter_train_datasets_per_asset"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.iter_train_datasets_per_asset()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.update_c2c_config"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.update_c2c_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#id0"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.format_event_dataset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#id1"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.get_event_info()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#id2"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.iter_datasets()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#id3"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.iter_formatted_datasets()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#id4"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.iter_train_datasets_per_asset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#id5"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.load_and_format_event_dataset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#id6"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.load_event_dataset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#id7"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.update_c2c_config()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="energy_fault_detector.evaluation.care_score.html">energy_fault_detector.evaluation.care_score</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.evaluation.care_score.html#energy_fault_detector.evaluation.care_score.CAREScore"><code class="docutils literal notranslate"><span class="pre">CAREScore</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care_score.html#energy_fault_detector.evaluation.care_score.CAREScore.calculate_avg_accuracy"><code class="docutils literal notranslate"><span class="pre">CAREScore.calculate_avg_accuracy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care_score.html#energy_fault_detector.evaluation.care_score.CAREScore.calculate_avg_coverage"><code class="docutils literal notranslate"><span class="pre">CAREScore.calculate_avg_coverage()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care_score.html#energy_fault_detector.evaluation.care_score.CAREScore.calculate_avg_earliness"><code class="docutils literal notranslate"><span class="pre">CAREScore.calculate_avg_earliness()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care_score.html#energy_fault_detector.evaluation.care_score.CAREScore.calculate_reliability"><code class="docutils literal notranslate"><span class="pre">CAREScore.calculate_reliability()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care_score.html#energy_fault_detector.evaluation.care_score.CAREScore.create_ground_truth"><code class="docutils literal notranslate"><span class="pre">CAREScore.create_ground_truth()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care_score.html#energy_fault_detector.evaluation.care_score.CAREScore.evaluate_event"><code class="docutils literal notranslate"><span class="pre">CAREScore.evaluate_event()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care_score.html#energy_fault_detector.evaluation.care_score.CAREScore.evaluated_events"><code class="docutils literal notranslate"><span class="pre">CAREScore.evaluated_events</span></code></a></li>

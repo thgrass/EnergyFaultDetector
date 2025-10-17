@@ -12,4 +12,5 @@ energy\_fault\_detector.utils
    :maxdepth: 4
 
    energy_fault_detector.utils.analysis
+   energy_fault_detector.utils.data_downloads
    energy_fault_detector.utils.visualisation

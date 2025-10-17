@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>energy_fault_detector.fault_detector &mdash; energy_fault_detector v0.2.0 documentation</title>
+  <title>energy_fault_detector.fault_detector &mdash; energy_fault_detector v0.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -16,7 +16,7 @@
     <link rel="shortcut icon" href="_static/favicon.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=683873e3"></script>
+      <script src="_static/documentation_options.js?v=19ed39ba"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -51,6 +51,9 @@
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="energy_fault_detector.html">The Energy Fault Detector package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.html#energy_fault_detector.Config"><code class="docutils literal notranslate"><span class="pre">Config</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.html#energy_fault_detector.FaultDetector"><code class="docutils literal notranslate"><span class="pre">FaultDetector</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.html#energy_fault_detector.quick_fault_detector"><code class="docutils literal notranslate"><span class="pre">quick_fault_detector()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.anomaly_scores.html">energy_fault_detector.anomaly_scores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.autoencoders.html">energy_fault_detector.autoencoders</a></li>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.config.html">energy_fault_detector.config</a></li>
@@ -124,9 +127,9 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="energy_fault_detector.config.config.html#energy_fault_detector.config.config.Config" title="energy_fault_detector.config.config.Config"><em>Config</em></a><em>]</em>) – Config object with fault detection configuration. Defaults to None.
+<li><p><strong>config</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="energy_fault_detector.html#energy_fault_detector.Config" title="energy_fault_detector.Config"><em>Config</em></a><em>]</em>) – Config object with fault detection configuration. Defaults to None.
 If None, the models need to be loaded from a path using the <cite>load_models</cite> method.</p></li>
-<li><p><strong>model_directory</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Directory to save models to. Defaults to ‘fault_detector_model’.</p></li>
+<li><p><strong>model_directory</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Directory to save models to. Defaults to ‘fault_detector_model’.</p></li>
 <li><p><strong>model_subdir</strong> (<em>Optional</em><em>[</em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Deprecated. This argument will be removed in future versions.
 Defaults to None.</p></li>
 </ul>
@@ -174,12 +177,12 @@ The timestamp should be the index and the sensor values as columns.</p></li>
 <li><p><strong>normal_index</strong> (<em>Optional</em><em>[</em><em>pd.Series</em><em>]</em>) – Series indicating normal behavior as boolean with the timestamp as
 index.
 Optional; if not provided, assumes all sensor_data represents normal behavior.</p></li>
-<li><p><strong>save_models</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to save models. Defaults to True.</p></li>
-<li><p><strong>overwrite_models</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, existing model directories can be overwritten. Defaults to
+<li><p><strong>save_models</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to save models. Defaults to True.</p></li>
+<li><p><strong>overwrite_models</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, existing model directories can be overwritten. Defaults to
 False.</p></li>
-<li><p><strong>fit_autoencoder_only</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, only fit the data preprocessor and autoencoder objects.
+<li><p><strong>fit_autoencoder_only</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, only fit the data preprocessor and autoencoder objects.
 Defaults to False.</p></li>
-<li><p><strong>fit_preprocessor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, the preprocessor is fitted. Defaults to True.</p></li>
+<li><p><strong>fit_preprocessor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, the preprocessor is fitted. Defaults to True.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -201,12 +204,12 @@ of the training and validation data.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sensor_data</strong> (<em>pd.DataFrame</em>) – DataFrame with the sensor data of one asset for a specific time window.
 The timestamp should be the index and the sensor values as columns.</p></li>
-<li><p><strong>model_path</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – Path to the models to be applied. If None, assumes the attributes
+<li><p><strong>model_path</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – Path to the models to be applied. If None, assumes the attributes
 data_preprocessor, autoencoder, anomaly_score, and threshold_selector contain fitted instances.</p></li>
-<li><p><strong>root_cause_analysis</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to run ARCANA. Defaults to False.</p></li>
-<li><p><strong>track_losses</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Optional; if True, ARCANA losses will be tracked over the iterations.
+<li><p><strong>root_cause_analysis</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to run ARCANA. Defaults to False.</p></li>
+<li><p><strong>track_losses</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Optional; if True, ARCANA losses will be tracked over the iterations.
 Defaults to False.</p></li>
-<li><p><strong>track_bias</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Optional; if True, ARCANA bias will be tracked over the iterations.
+<li><p><strong>track_bias</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Optional; if True, ARCANA bias will be tracked over the iterations.
 Defaults to False.</p></li>
 </ul>
 </dd>
@@ -262,13 +265,13 @@ Defaults to False.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sensor_data</strong> (<em>pd.DataFrame</em>) – unprocessed training data</p></li>
 <li><p><strong>normal_index</strong> (<em>pd.Series</em>) – unprocessed normal index</p></li>
-<li><p><strong>fit_preprocessor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – if True the preprocessor is fitted. If False the preprocessor is not
+<li><p><strong>fit_preprocessor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – if True the preprocessor is fitted. If False the preprocessor is not
 fitted and the user has to provide a ready-to-use preprocessor by loading models before calling this
 function.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>]</span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>]</span></p>
 </dd>
 </dl>
 <dl class="simple">
@@ -287,12 +290,12 @@ y: ordered normal_index (unprocessed)  # needed for _fit_threshold</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sensor_data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></span>) – pandas DataFrame containing the sensor data which should be analyzed.</p></li>
-<li><p><strong>track_losses</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – optional bool. If True the arcana losses will be tracked over the iterations</p></li>
-<li><p><strong>track_bias</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – optional bool. If True the arcana bias will be tracked over the iterations</p></li>
+<li><p><strong>track_losses</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – optional bool. If True the arcana losses will be tracked over the iterations</p></li>
+<li><p><strong>track_bias</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – optional bool. If True the arcana bias will be tracked over the iterations</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]]</span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]]</span></p>
 </dd>
 </dl>
 <dl class="simple">
@@ -322,17 +325,17 @@ The timestamp should be the index and the sensor values as columns.</p></li>
 <li><p><strong>normal_index</strong> (<em>pd.Series</em><em>, </em><em>optional</em>) – Series indicating normal behavior as boolean with the timestamp as
 index. If not provided, it is assumed all data in <cite>sensor_data</cite> represents normal behaviour.
 Defaults to None.</p></li>
-<li><p><strong>pretrained_model_path</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – Path to pretrained model. If None, assumes attributes
+<li><p><strong>pretrained_model_path</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – Path to pretrained model. If None, assumes attributes
 data_preprocessor, autoencoder, anomaly_score, and threshold_selector contain fitted instances.</p></li>
-<li><p><strong>tune_epochs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – Number of epochs to fine-tune. Defaults to 10.</p></li>
-<li><p><strong>new_learning_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>optional</em>) – Learning rate to tune the autoencoder with. Defaults to 0.0001.</p></li>
-<li><p><strong>tune_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Possible options:
+<li><p><strong>tune_epochs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Number of epochs to fine-tune. Defaults to 10.</p></li>
+<li><p><strong>new_learning_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – Learning rate to tune the autoencoder with. Defaults to 0.0001.</p></li>
+<li><p><strong>tune_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Possible options:
 ‘full’ (all autoencoder weights + threshold and anomaly-score scaling will be adapted),
 ‘decoder’ (only decoder weights + threshold will be adapted),
 ‘threshold’ (only the threshold and anomaly-score scaling is adapted)
 Defaults to ‘full’.</p></li>
-<li><p><strong>save_models</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to save models. Defaults to True.</p></li>
-<li><p><strong>overwrite_models</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, existing model directories can be overwritten. Defaults to
+<li><p><strong>save_models</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to save models. Defaults to True.</p></li>
+<li><p><strong>overwrite_models</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, existing model directories can be overwritten. Defaults to
 False.</p></li>
 <li><p><strong>data_preprocessor</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="energy_fault_detector.data_preprocessing.data_preprocessor.html#energy_fault_detector.data_preprocessing.data_preprocessor.DataPreprocessor" title="energy_fault_detector.data_preprocessing.data_preprocessor.DataPreprocessor"><em>DataPreprocessor</em></a><em>]</em><em>, </em><em>optional</em>) – Optional prefitted data preprocessor. Useful
 when using a generic preprocessor for all models.</p></li>

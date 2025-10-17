@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>energy_fault_detector &mdash; energy_fault_detector v0.2.0 documentation</title>
+  <title>energy_fault_detector &mdash; energy_fault_detector v0.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -16,7 +16,7 @@
     <link rel="shortcut icon" href="_static/favicon.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=683873e3"></script>
+      <script src="_static/documentation_options.js?v=19ed39ba"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -51,6 +51,34 @@
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">The Energy Fault Detector package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#energy_fault_detector.Config"><code class="docutils literal notranslate"><span class="pre">Config</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#energy_fault_detector.Config.angle_columns"><code class="docutils literal notranslate"><span class="pre">Config.angle_columns</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#energy_fault_detector.Config.arcana_params"><code class="docutils literal notranslate"><span class="pre">Config.arcana_params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#energy_fault_detector.Config.data_clipping"><code class="docutils literal notranslate"><span class="pre">Config.data_clipping</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#energy_fault_detector.Config.data_clipping_params"><code class="docutils literal notranslate"><span class="pre">Config.data_clipping_params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#energy_fault_detector.Config.data_split_params"><code class="docutils literal notranslate"><span class="pre">Config.data_split_params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#energy_fault_detector.Config.fit_threshold_on_val"><code class="docutils literal notranslate"><span class="pre">Config.fit_threshold_on_val</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#energy_fault_detector.Config.max_criticality"><code class="docutils literal notranslate"><span class="pre">Config.max_criticality</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#energy_fault_detector.Config.root_cause_analysis"><code class="docutils literal notranslate"><span class="pre">Config.root_cause_analysis</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#energy_fault_detector.Config.verbose"><code class="docutils literal notranslate"><span class="pre">Config.verbose</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#energy_fault_detector.FaultDetector"><code class="docutils literal notranslate"><span class="pre">FaultDetector</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#energy_fault_detector.FaultDetector.anomaly_score"><code class="docutils literal notranslate"><span class="pre">FaultDetector.anomaly_score</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#energy_fault_detector.FaultDetector.autoencoder"><code class="docutils literal notranslate"><span class="pre">FaultDetector.autoencoder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#energy_fault_detector.FaultDetector.threshold_selector"><code class="docutils literal notranslate"><span class="pre">FaultDetector.threshold_selector</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#energy_fault_detector.FaultDetector.data_preprocessor"><code class="docutils literal notranslate"><span class="pre">FaultDetector.data_preprocessor</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#energy_fault_detector.FaultDetector.save_timestamps"><code class="docutils literal notranslate"><span class="pre">FaultDetector.save_timestamps</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#energy_fault_detector.FaultDetector.fit"><code class="docutils literal notranslate"><span class="pre">FaultDetector.fit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#energy_fault_detector.FaultDetector.predict"><code class="docutils literal notranslate"><span class="pre">FaultDetector.predict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#energy_fault_detector.FaultDetector.predict_anomalies"><code class="docutils literal notranslate"><span class="pre">FaultDetector.predict_anomalies()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#energy_fault_detector.FaultDetector.predict_anomaly_score"><code class="docutils literal notranslate"><span class="pre">FaultDetector.predict_anomaly_score()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#energy_fault_detector.FaultDetector.preprocess_train_data"><code class="docutils literal notranslate"><span class="pre">FaultDetector.preprocess_train_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#energy_fault_detector.FaultDetector.run_root_cause_analysis"><code class="docutils literal notranslate"><span class="pre">FaultDetector.run_root_cause_analysis()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#energy_fault_detector.FaultDetector.tune"><code class="docutils literal notranslate"><span class="pre">FaultDetector.tune()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#energy_fault_detector.quick_fault_detector"><code class="docutils literal notranslate"><span class="pre">quick_fault_detector()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.anomaly_scores.html">energy_fault_detector.anomaly_scores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.autoencoders.html">energy_fault_detector.autoencoders</a></li>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.config.html">energy_fault_detector.config</a></li>
@@ -98,6 +126,382 @@
   <section id="module-energy_fault_detector">
 <span id="energy-fault-detector"></span><h1>energy_fault_detector<a class="headerlink" href="#module-energy_fault_detector" title="Link to this heading"></a></h1>
 <p>The anomaly-detection-iee package</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="energy_fault_detector.Config">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.Config" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="energy_fault_detector.config.base_config.html#energy_fault_detector.config.base_config.BaseConfig" title="energy_fault_detector.config.base_config.BaseConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseConfig</span></code></a></p>
+<p>Configuration class. Either config_filename or config_dict must be provided.
+Reads a yaml files with the anomaly detection configuration and sets corresponding settings.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="energy_fault_detector.Config.angle_columns">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">angle_columns</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#energy_fault_detector.Config.angle_columns" title="Link to this definition"></a></dt>
+<dd><p>List of angle columns.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="energy_fault_detector.Config.arcana_params">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">arcana_params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#energy_fault_detector.Config.arcana_params" title="Link to this definition"></a></dt>
+<dd><p>Get the ARCANA parameters.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="energy_fault_detector.Config.data_clipping">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">data_clipping</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#energy_fault_detector.Config.data_clipping" title="Link to this definition"></a></dt>
+<dd><p>Whether to clip training data.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="energy_fault_detector.Config.data_clipping_params">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">data_clipping_params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#energy_fault_detector.Config.data_clipping_params" title="Link to this definition"></a></dt>
+<dd><p>Data clipping parameters.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="energy_fault_detector.Config.data_split_params">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">data_split_params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#energy_fault_detector.Config.data_split_params" title="Link to this definition"></a></dt>
+<dd><p>DataSplitter or train_test_split parameters.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="energy_fault_detector.Config.fit_threshold_on_val">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fit_threshold_on_val</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#energy_fault_detector.Config.fit_threshold_on_val" title="Link to this definition"></a></dt>
+<dd><p>Whether to fit threshold on validation data only.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="energy_fault_detector.Config.max_criticality">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_criticality</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></em><a class="headerlink" href="#energy_fault_detector.Config.max_criticality" title="Link to this definition"></a></dt>
+<dd><p>Max criticality value.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="energy_fault_detector.Config.root_cause_analysis">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">root_cause_analysis</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#energy_fault_detector.Config.root_cause_analysis" title="Link to this definition"></a></dt>
+<dd><p>Whether to run ARCANA.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="energy_fault_detector.Config.verbose">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">verbose</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></em><a class="headerlink" href="#energy_fault_detector.Config.verbose" title="Link to this definition"></a></dt>
+<dd><p>Verbosity Level of the Autoencoder.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="energy_fault_detector.FaultDetector">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FaultDetector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_directory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fault_detector_model'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_subdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.FaultDetector" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="energy_fault_detector.core.fault_detection_model.html#energy_fault_detector.core.fault_detection_model.FaultDetectionModel" title="energy_fault_detector.core.fault_detection_model.FaultDetectionModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">FaultDetectionModel</span></code></a></p>
+<p>Main class for fault detection in renewable energy assets and power grids.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#energy_fault_detector.Config" title="energy_fault_detector.Config"><em>Config</em></a><em>]</em>) – Config object with fault detection configuration. Defaults to None.
+If None, the models need to be loaded from a path using the <cite>load_models</cite> method.</p></li>
+<li><p><strong>model_directory</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Directory to save models to. Defaults to ‘fault_detector_model’.</p></li>
+<li><p><strong>model_subdir</strong> (<em>Optional</em><em>[</em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Deprecated. This argument will be removed in future versions.
+Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="energy_fault_detector.FaultDetector.anomaly_score">
+<span class="sig-name descname"><span class="pre">anomaly_score</span></span><a class="headerlink" href="#energy_fault_detector.FaultDetector.anomaly_score" title="Link to this definition"></a></dt>
+<dd><p>AnomalyScore object.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="energy_fault_detector.FaultDetector.autoencoder">
+<span class="sig-name descname"><span class="pre">autoencoder</span></span><a class="headerlink" href="#energy_fault_detector.FaultDetector.autoencoder" title="Link to this definition"></a></dt>
+<dd><p>Autoencoder object.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="energy_fault_detector.FaultDetector.threshold_selector">
+<span class="sig-name descname"><span class="pre">threshold_selector</span></span><a class="headerlink" href="#energy_fault_detector.FaultDetector.threshold_selector" title="Link to this definition"></a></dt>
+<dd><p>ThresholdSelector object.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="energy_fault_detector.FaultDetector.data_preprocessor">
+<span class="sig-name descname"><span class="pre">data_preprocessor</span></span><a class="headerlink" href="#energy_fault_detector.FaultDetector.data_preprocessor" title="Link to this definition"></a></dt>
+<dd><p>DataPreprocessorPipeline object.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="energy_fault_detector.FaultDetector.save_timestamps">
+<span class="sig-name descname"><span class="pre">save_timestamps</span></span><a class="headerlink" href="#energy_fault_detector.FaultDetector.save_timestamps" title="Link to this definition"></a></dt>
+<dd><p>a list of string timestamps indicating when the model was saved.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="energy_fault_detector.FaultDetector.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_models</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_models</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_autoencoder_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_preprocessor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.FaultDetector.fit" title="Link to this definition"></a></dt>
+<dd><p>Fit models on the given sensor_data and save them locally and return the metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sensor_data</strong> (<em>pd.DataFrame</em>) – DataFrame with the sensor data of one asset for a specific time window.
+The timestamp should be the index and the sensor values as columns.</p></li>
+<li><p><strong>normal_index</strong> (<em>Optional</em><em>[</em><em>pd.Series</em><em>]</em>) – Series indicating normal behavior as boolean with the timestamp as
+index.
+Optional; if not provided, assumes all sensor_data represents normal behavior.</p></li>
+<li><p><strong>save_models</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to save models. Defaults to True.</p></li>
+<li><p><strong>overwrite_models</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, existing model directories can be overwritten. Defaults to
+False.</p></li>
+<li><p><strong>fit_autoencoder_only</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, only fit the data preprocessor and autoencoder objects.
+Defaults to False.</p></li>
+<li><p><strong>fit_preprocessor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, the preprocessor is fitted. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>metadata of the trained model: model_date, model_path, model reconstruction errors
+of the training and validation data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="energy_fault_detector.core.fault_detection_result.html#energy_fault_detector.core.fault_detection_result.ModelMetadata" title="energy_fault_detector.core.fault_detection_result.ModelMetadata">ModelMetadata</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="energy_fault_detector.FaultDetector.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_cause_analysis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_losses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.FaultDetector.predict" title="Link to this definition"></a></dt>
+<dd><p>Predict with given models for a specific asset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sensor_data</strong> (<em>pd.DataFrame</em>) – DataFrame with the sensor data of one asset for a specific time window.
+The timestamp should be the index and the sensor values as columns.</p></li>
+<li><p><strong>model_path</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – Path to the models to be applied. If None, assumes the attributes
+data_preprocessor, autoencoder, anomaly_score, and threshold_selector contain fitted instances.</p></li>
+<li><p><strong>root_cause_analysis</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to run ARCANA. Defaults to False.</p></li>
+<li><p><strong>track_losses</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Optional; if True, ARCANA losses will be tracked over the iterations.
+Defaults to False.</p></li>
+<li><p><strong>track_bias</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Optional; if True, ARCANA bias will be tracked over the iterations.
+Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>with the following DataFrames:</dt><dd><ul class="simple">
+<li><p>predicted_anomalies: DataFrame with a column ‘anomaly’ (bool).</p></li>
+<li><p>reconstruction: DataFrame with reconstruction of the sensor data with timestamp as index.</p></li>
+<li><p>deviations: DataFrame with reconstruction errors.</p></li>
+<li><p>anomaly_score: DataFrame with anomaly scores for each timestamp.</p></li>
+<li><p>bias_data: DataFrame with ARCANA results with timestamp as index. None if ARCANA was not run.</p></li>
+<li><p>arcana_losses: DataFrame containing recorded values for all losses in ARCANA. None if ARCANA was not run.</p></li>
+<li><p>tracked_bias: List of DataFrames. None if ARCANA was not run.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="energy_fault_detector.core.fault_detection_result.html#energy_fault_detector.core.fault_detection_result.FaultDetectionResult" title="energy_fault_detector.core.fault_detection_result.FaultDetectionResult">FaultDetectionResult</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="energy_fault_detector.FaultDetector.predict_anomalies">
+<span class="sig-name descname"><span class="pre">predict_anomalies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scores</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_prepped</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.FaultDetector.predict_anomalies" title="Link to this definition"></a></dt>
+<dd><p>Predict anomalies based on anomaly scores.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="energy_fault_detector.FaultDetector.predict_anomaly_score">
+<span class="sig-name descname"><span class="pre">predict_anomaly_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.FaultDetector.predict_anomaly_score" title="Link to this definition"></a></dt>
+<dd><p>Predict the anomaly score.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="energy_fault_detector.FaultDetector.preprocess_train_data">
+<span class="sig-name descname"><span class="pre">preprocess_train_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_preprocessor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.FaultDetector.preprocess_train_data" title="Link to this definition"></a></dt>
+<dd><p>Preprocesses the training data using the configured data_preprocessor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sensor_data</strong> (<em>pd.DataFrame</em>) – unprocessed training data</p></li>
+<li><p><strong>normal_index</strong> (<em>pd.Series</em>) – unprocessed normal index</p></li>
+<li><p><strong>fit_preprocessor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – if True the preprocessor is fitted. If False the preprocessor is not
+fitted and the user has to provide a ready-to-use preprocessor by loading models before calling this
+function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>]</span></p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns: tuple of (pd.Dataframe, pd.Dataframe, pd.Series)</dt><dd><p>x_prepped (pd.DataFrame): preprocessed normal training data
+x: ordered training data (unprocessed)  # needed for _fit_threshold
+y: ordered normal_index (unprocessed)  # needed for _fit_threshold</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="energy_fault_detector.FaultDetector.run_root_cause_analysis">
+<span class="sig-name descname"><span class="pre">run_root_cause_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_losses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.FaultDetector.run_root_cause_analysis" title="Link to this definition"></a></dt>
+<dd><p>Run ARCANA</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sensor_data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></span>) – pandas DataFrame containing the sensor data which should be analyzed.</p></li>
+<li><p><strong>track_losses</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – optional bool. If True the arcana losses will be tracked over the iterations</p></li>
+<li><p><strong>track_bias</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – optional bool. If True the arcana bias will be tracked over the iterations</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]]</span></p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns: Tuple of (pd.DataFrame, pd.DataFrame, List[pd.DataFrame])</dt><dd><p>df_arcana_bias: pandas dataframe containing the arcana bias.
+arcana_losses: dictionary containing loss names as keys and lists of loss values as values.
+tracked_bias: list of pandas dataframe containing the arcana bias recorded over the iterations.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="energy_fault_detector.FaultDetector.tune">
+<span class="sig-name descname"><span class="pre">tune</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pretrained_model_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_learning_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tune_epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tune_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'full'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_models</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_models</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_preprocessor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.FaultDetector.tune" title="Link to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>FaultDetector finetuning via the following methods:</dt><dd><p>‘full’ (all autoencoder weights + threshold and anomaly-score scaling will be adapted),
+‘decoder’ (only decoder weights + threshold will be adapted),
+‘threshold’ (only the threshold and anomaly-score scaling is adapted)</p>
+</dd>
+<dt>Notes: Parameters tune_epochs and new_learning_rate should be chosen carefully while considering</dt><dd><p>potential overfitting issues depending on the similarity of the tuning data and the training data.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sensor_data</strong> (<em>pd.DataFrame</em>) – DataFrame with the sensor data of one asset for a specific time window.
+The timestamp should be the index and the sensor values as columns.</p></li>
+<li><p><strong>normal_index</strong> (<em>pd.Series</em><em>, </em><em>optional</em>) – Series indicating normal behavior as boolean with the timestamp as
+index. If not provided, it is assumed all data in <cite>sensor_data</cite> represents normal behaviour.
+Defaults to None.</p></li>
+<li><p><strong>pretrained_model_path</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – Path to pretrained model. If None, assumes attributes
+data_preprocessor, autoencoder, anomaly_score, and threshold_selector contain fitted instances.</p></li>
+<li><p><strong>tune_epochs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Number of epochs to fine-tune. Defaults to 10.</p></li>
+<li><p><strong>new_learning_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – Learning rate to tune the autoencoder with. Defaults to 0.0001.</p></li>
+<li><p><strong>tune_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Possible options:
+‘full’ (all autoencoder weights + threshold and anomaly-score scaling will be adapted),
+‘decoder’ (only decoder weights + threshold will be adapted),
+‘threshold’ (only the threshold and anomaly-score scaling is adapted)
+Defaults to ‘full’.</p></li>
+<li><p><strong>save_models</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to save models. Defaults to True.</p></li>
+<li><p><strong>overwrite_models</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, existing model directories can be overwritten. Defaults to
+False.</p></li>
+<li><p><strong>data_preprocessor</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="energy_fault_detector.data_preprocessing.data_preprocessor.html#energy_fault_detector.data_preprocessing.data_preprocessor.DataPreprocessor" title="energy_fault_detector.data_preprocessing.data_preprocessor.DataPreprocessor"><em>DataPreprocessor</em></a><em>]</em><em>, </em><em>optional</em>) – Optional prefitted data preprocessor. Useful
+when using a generic preprocessor for all models.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>metadata of the trained model with model_date, model_path, model reconstruction errors
+of the training and validation data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="energy_fault_detector.core.fault_detection_result.html#energy_fault_detector.core.fault_detection_result.ModelMetadata" title="energy_fault_detector.core.fault_detection_result.ModelMetadata">ModelMetadata</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="energy_fault_detector.quick_fault_detector">
+<span class="sig-name descname"><span class="pre">quick_fault_detector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csv_test_data_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_test_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_test_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status_data_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status_label_confidence_percentage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features_to_exclude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">automatic_optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_debug_plots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_anomaly_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">18</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.quick_fault_detector" title="Link to this definition"></a></dt>
+<dd><p>Analyzes provided data using an autoencoder based approach for identifying anomalies based on a learned normal
+behavior. Anomalies are then aggregated to events and further analyzed.
+Runs the entire fault detection module chain in one function call. Sections of this function call are:
+1. Data Loading and verification
+2. Config selection and optimization
+3. AnomalyDetector training
+4. AnomalyDetector prediction
+5. Event aggregation
+6. ARCANA-Analysis of detected events
+7. Visualization of output</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>csv_data_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Path to a csv-file containing tabular data which must contain training data for the
+autoencoder. This data can also contain test data for evaluation, but in this case train_test_column and
+optionally train_test_mapping must be provided.</p></li>
+<li><p><strong>csv_test_data_path</strong> (<em>Optional str</em>) – Path to a csv file containing test data for evaluation. If test data is
+provided in both ways (i.e. via csv_test_data_path and in csv_data_path + train_test_column) then both test
+data sets will be fused into one. Default is None.</p></li>
+<li><p><strong>train_test_column_name</strong> (<em>Optional str</em>) – Name of the column which specifies which part of the data in
+csv_data_path is training data and which is test data. If this column does not contain boolean values or
+values which can be cast into boolean values, then train_test_mapping must be provided.
+True values are interpreted as training data. Default is None.</p></li>
+<li><p><strong>train_test_mapping</strong> (<em>Optional dict</em>) – Dictionary which defines a mapping of all non-boolean values in the
+train_test_column to booleans. Keys of the dictionary must be values from train_test_column, and they must
+have a datatype which can be cast to the datatype of train_test_column. Values of this dictionary must be
+booleans or at least castable to booleans. Default is None.</p></li>
+<li><p><strong>time_column_name</strong> (<em>Optional str</em>) – Name of the column containing time stamp information.</p></li>
+<li><p><strong>status_data_column_name</strong> (<em>Optional str</em>) – Name of the column which specifies the status of each row in
+csv_data_path. The status is used to define which rows represent normal behavior (i.e. which rows can be
+used for the autoencoder training) and which rows contain anomalous behavior. If this column does not
+contain boolean values, status_mapping must be provided. If status_data_column_name is not provided, all
+rows in csv_data_path are assumed to be normal and a warning will be logged. Default is None.</p></li>
+<li><p><strong>status_mapping</strong> (<em>Optional dict</em>) – Dictionary which defines a mapping of all non-boolean values in the
+status_data_column to booleans. Keys of the dictionary must be values from status_data_column, and they must
+have a datatype which can be cast to the datatype of train_test_column. Values of this dictionary must be
+booleans or at least castable to booleans. True values are interpreted as normal status. Default is None.</p></li>
+<li><p><strong>status_label_confidence_percentage</strong> (<em>Optional float</em>) – Specifies how sure the user is that the provided status
+labels and derived normal_indexes are correct. This determines the quantile for quantile threshold method.
+Default is 0.95.</p></li>
+<li><p><strong>features_to_exclude</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em><em>]</em>) – List of column names which are present in the csv-files but which
+should be ignored for this failure detection run. Default is None.</p></li>
+<li><p><strong>angle_features</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em><em>]</em>) – List of column names which represent angle-features. This enables a
+specialized preprocessing of angle features, which might otherwise hinder the failure detection process.
+Default is None.</p></li>
+<li><p><strong>automatic_optimization</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, an automatic hyperparameter optimization is done based on the dimension
+of the provided dataset. Default is True.</p></li>
+<li><p><strong>enable_debug_plots</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True advanced information for debugging is added to the result plots.
+Default is False.</p></li>
+<li><p><strong>min_anomaly_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Minimal number of consecutive anomalies (i.e. data points with an anomaly score above
+the FaultDetector threshold) to define an anomaly event.</p></li>
+<li><p><strong>save_dir</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – Directory to save the output plots. If not provided, the plots are not saved.
+Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>FaultDetectionResult object with the following DataFrames:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>predicted_anomalies: DataFrame with a column ‘anomaly’ (bool).</p></li>
+<li><p>reconstruction: DataFrame with reconstruction of the sensor data with timestamp as index.</p></li>
+<li><p>deviations: DataFrame with reconstruction errors.</p></li>
+<li><p>anomaly_score: DataFrame with anomaly scores for each timestamp.</p></li>
+<li><p>bias_data: DataFrame with ARCANA results with timestamp as index. None if ARCANA was not run.</p></li>
+<li><p>arcana_losses: DataFrame containing recorded values for all losses in ARCANA. None if ARCANA was not run.</p></li>
+<li><p>tracked_bias: List of DataFrames. None if ARCANA was not run.</p></li>
+</ul>
+</div></blockquote>
+<p>and the detected anomaly events as dataframe.</p>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple(<a class="reference internal" href="energy_fault_detector.core.fault_detection_result.html#energy_fault_detector.core.fault_detection_result.FaultDetectionResult" title="energy_fault_detector.core.fault_detection_result.FaultDetectionResult">FaultDetectionResult</a>, pd.DataFrame)</p>
+</dd>
+</dl>
+</dd></dl>
+
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="energy_fault_detector.anomaly_scores.html">energy_fault_detector.anomaly_scores</a><ul>
@@ -371,20 +775,32 @@
 <li class="toctree-l1"><a class="reference internal" href="energy_fault_detector.evaluation.html">energy_fault_detector.evaluation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html">energy_fault_detector.evaluation.care2compare</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.format_event_dataset"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.format_event_dataset()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.get_dataset_for_event"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.get_dataset_for_event()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.get_event_info"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.get_event_info()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.get_formatted_event_dataset"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.get_formatted_event_dataset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.iter_datasets"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.iter_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.format_event_dataset"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.format_event_dataset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.iter_formatted_datasets"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.iter_formatted_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.load_event_dataset"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.load_event_dataset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.load_and_format_event_dataset"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.load_and_format_event_dataset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.iter_train_datasets_per_asset"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.iter_train_datasets_per_asset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#energy_fault_detector.evaluation.care2compare.Care2CompareDataset.update_c2c_config"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.update_c2c_config()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#id0"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.format_event_dataset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#id1"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.get_event_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#id2"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.iter_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#id3"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.iter_formatted_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#id4"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.iter_train_datasets_per_asset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#id5"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.load_and_format_event_dataset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#id6"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.load_event_dataset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care2compare.html#id7"><code class="docutils literal notranslate"><span class="pre">Care2CompareDataset.update_c2c_config()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.evaluation.care_score.html">energy_fault_detector.evaluation.care_score</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.care_score.html#energy_fault_detector.evaluation.care_score.CAREScore"><code class="docutils literal notranslate"><span class="pre">CAREScore</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care_score.html#energy_fault_detector.evaluation.care_score.CAREScore.calculate_avg_accuracy"><code class="docutils literal notranslate"><span class="pre">CAREScore.calculate_avg_accuracy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care_score.html#energy_fault_detector.evaluation.care_score.CAREScore.calculate_avg_coverage"><code class="docutils literal notranslate"><span class="pre">CAREScore.calculate_avg_coverage()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care_score.html#energy_fault_detector.evaluation.care_score.CAREScore.calculate_avg_earliness"><code class="docutils literal notranslate"><span class="pre">CAREScore.calculate_avg_earliness()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care_score.html#energy_fault_detector.evaluation.care_score.CAREScore.calculate_reliability"><code class="docutils literal notranslate"><span class="pre">CAREScore.calculate_reliability()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care_score.html#energy_fault_detector.evaluation.care_score.CAREScore.create_ground_truth"><code class="docutils literal notranslate"><span class="pre">CAREScore.create_ground_truth()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care_score.html#energy_fault_detector.evaluation.care_score.CAREScore.evaluate_event"><code class="docutils literal notranslate"><span class="pre">CAREScore.evaluate_event()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.evaluation.care_score.html#energy_fault_detector.evaluation.care_score.CAREScore.evaluated_events"><code class="docutils literal notranslate"><span class="pre">CAREScore.evaluated_events</span></code></a></li>
@@ -498,6 +914,16 @@
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.utils.analysis.html">energy_fault_detector.utils.analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.utils.analysis.html#energy_fault_detector.utils.analysis.calculate_criticality"><code class="docutils literal notranslate"><span class="pre">calculate_criticality()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.utils.analysis.html#energy_fault_detector.utils.analysis.create_events"><code class="docutils literal notranslate"><span class="pre">create_events()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.utils.data_downloads.html">energy_fault_detector.utils.data_downloads</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.utils.data_downloads.html#energy_fault_detector.utils.data_downloads.download_file"><code class="docutils literal notranslate"><span class="pre">download_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.utils.data_downloads.html#energy_fault_detector.utils.data_downloads.download_zenodo_data"><code class="docutils literal notranslate"><span class="pre">download_zenodo_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.utils.data_downloads.html#energy_fault_detector.utils.data_downloads.fetch_record"><code class="docutils literal notranslate"><span class="pre">fetch_record()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.utils.data_downloads.html#energy_fault_detector.utils.data_downloads.list_files"><code class="docutils literal notranslate"><span class="pre">list_files()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.utils.data_downloads.html#energy_fault_detector.utils.data_downloads.parse_record_id"><code class="docutils literal notranslate"><span class="pre">parse_record_id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.utils.data_downloads.html#energy_fault_detector.utils.data_downloads.prepare_output_dir"><code class="docutils literal notranslate"><span class="pre">prepare_output_dir()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.utils.data_downloads.html#energy_fault_detector.utils.data_downloads.safe_extract_zip"><code class="docutils literal notranslate"><span class="pre">safe_extract_zip()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.utils.visualisation.html">energy_fault_detector.utils.visualisation</a><ul>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>energy_fault_detector.quick_fault_detection.quick_fault_detector &mdash; energy_fault_detector v0.2.0 documentation</title>
+  <title>energy_fault_detector.quick_fault_detection.quick_fault_detector &mdash; energy_fault_detector v0.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -16,7 +16,7 @@
     <link rel="shortcut icon" href="_static/favicon.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=683873e3"></script>
+      <script src="_static/documentation_options.js?v=19ed39ba"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -51,6 +51,9 @@
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="energy_fault_detector.html">The Energy Fault Detector package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.html#energy_fault_detector.Config"><code class="docutils literal notranslate"><span class="pre">Config</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.html#energy_fault_detector.FaultDetector"><code class="docutils literal notranslate"><span class="pre">FaultDetector</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.html#energy_fault_detector.quick_fault_detector"><code class="docutils literal notranslate"><span class="pre">quick_fault_detector()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.anomaly_scores.html">energy_fault_detector.anomaly_scores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.autoencoders.html">energy_fault_detector.autoencoders</a></li>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.config.html">energy_fault_detector.config</a></li>
@@ -118,9 +121,9 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>anomaly_detector</strong> (<a class="reference internal" href="energy_fault_detector.fault_detector.html#energy_fault_detector.fault_detector.FaultDetector" title="energy_fault_detector.fault_detector.FaultDetector"><em>FaultDetector</em></a>) – trained AnomalyDetector instance.</p></li>
+<li><p><strong>anomaly_detector</strong> (<a class="reference internal" href="energy_fault_detector.html#energy_fault_detector.FaultDetector" title="energy_fault_detector.FaultDetector"><em>FaultDetector</em></a>) – trained AnomalyDetector instance.</p></li>
 <li><p><strong>event_data</strong> (<em>pd.DataFrame</em>) – data from a detected anomaly event</p></li>
-<li><p><strong>track_losses</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – If True ARCANA-losses are tracked.</p></li>
+<li><p><strong>track_losses</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True ARCANA-losses are tracked.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -149,7 +152,7 @@ Runs the entire fault detection module chain in one function call. Sections of t
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>csv_data_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Path to a csv-file containing tabular data which must contain training data for the
+<li><p><strong>csv_data_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Path to a csv-file containing tabular data which must contain training data for the
 autoencoder. This data can also contain test data for evaluation, but in this case train_test_column and
 optionally train_test_mapping must be provided.</p></li>
 <li><p><strong>csv_test_data_path</strong> (<em>Optional str</em>) – Path to a csv file containing test data for evaluation. If test data is
@@ -176,18 +179,18 @@ booleans or at least castable to booleans. True values are interpreted as normal
 <li><p><strong>status_label_confidence_percentage</strong> (<em>Optional float</em>) – Specifies how sure the user is that the provided status
 labels and derived normal_indexes are correct. This determines the quantile for quantile threshold method.
 Default is 0.95.</p></li>
-<li><p><strong>features_to_exclude</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em><em>]</em>) – List of column names which are present in the csv-files but which
+<li><p><strong>features_to_exclude</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em><em>]</em>) – List of column names which are present in the csv-files but which
 should be ignored for this failure detection run. Default is None.</p></li>
-<li><p><strong>angle_features</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em><em>]</em>) – List of column names which represent angle-features. This enables a
+<li><p><strong>angle_features</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em><em>]</em>) – List of column names which represent angle-features. This enables a
 specialized preprocessing of angle features, which might otherwise hinder the failure detection process.
 Default is None.</p></li>
-<li><p><strong>automatic_optimization</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – If True, an automatic hyperparameter optimization is done based on the dimension
+<li><p><strong>automatic_optimization</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, an automatic hyperparameter optimization is done based on the dimension
 of the provided dataset. Default is True.</p></li>
-<li><p><strong>enable_debug_plots</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – If True advanced information for debugging is added to the result plots.
+<li><p><strong>enable_debug_plots</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True advanced information for debugging is added to the result plots.
 Default is False.</p></li>
-<li><p><strong>min_anomaly_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Minimal number of consecutive anomalies (i.e. data points with an anomaly score above
+<li><p><strong>min_anomaly_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Minimal number of consecutive anomalies (i.e. data points with an anomaly score above
 the FaultDetector threshold) to define an anomaly event.</p></li>
-<li><p><strong>save_dir</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em>) – Directory to save the output plots. If not provided, the plots are not saved.
+<li><p><strong>save_dir</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – Directory to save the output plots. If not provided, the plots are not saved.
 Defaults to None.</p></li>
 </ul>
 </dd>

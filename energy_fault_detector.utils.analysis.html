@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>energy_fault_detector.utils.analysis &mdash; energy_fault_detector v0.2.0 documentation</title>
+  <title>energy_fault_detector.utils.analysis &mdash; energy_fault_detector v0.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -16,7 +16,7 @@
     <link rel="shortcut icon" href="_static/favicon.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=683873e3"></script>
+      <script src="_static/documentation_options.js?v=19ed39ba"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -24,7 +24,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="energy_fault_detector.utils.visualisation" href="energy_fault_detector.utils.visualisation.html" />
+    <link rel="next" title="energy_fault_detector.utils.data_downloads" href="energy_fault_detector.utils.data_downloads.html" />
     <link rel="prev" title="energy_fault_detector.utils" href="energy_fault_detector.utils.html" /> 
 </head>
 
@@ -51,6 +51,9 @@
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="energy_fault_detector.html">The Energy Fault Detector package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.html#energy_fault_detector.Config"><code class="docutils literal notranslate"><span class="pre">Config</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.html#energy_fault_detector.FaultDetector"><code class="docutils literal notranslate"><span class="pre">FaultDetector</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.html#energy_fault_detector.quick_fault_detector"><code class="docutils literal notranslate"><span class="pre">quick_fault_detector()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.anomaly_scores.html">energy_fault_detector.anomaly_scores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.autoencoders.html">energy_fault_detector.autoencoders</a></li>
 <li class="toctree-l2"><a class="reference internal" href="energy_fault_detector.config.html">energy_fault_detector.config</a></li>
@@ -67,6 +70,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#energy_fault_detector.utils.analysis.create_events"><code class="docutils literal notranslate"><span class="pre">create_events()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.utils.data_downloads.html">energy_fault_detector.utils.data_downloads</a></li>
 <li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.utils.visualisation.html">energy_fault_detector.utils.visualisation</a></li>
 </ul>
 </li>
@@ -121,8 +125,8 @@ that all detected anomalies occur during normal operation.</p>
 indexed by timestamp.</p></li>
 <li><p><strong>normal_idx</strong> (<em>pd.Series</em><em>, </em><em>optional</em>) – A pandas Series with boolean values indicating normal operation, indexed by
 timestamp.</p></li>
-<li><p><strong>init_criticality</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The initial criticality value. Defaults to 0.</p></li>
-<li><p><strong>max_criticality</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The maximum criticality value. Defaults to 1000.</p></li>
+<li><p><strong>init_criticality</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The initial criticality value. Defaults to 0.</p></li>
+<li><p><strong>max_criticality</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The maximum criticality value. Defaults to 1000.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -132,7 +136,7 @@ timestamp.</p></li>
 <dd class="field-odd"><p>pd.Series</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.13)"><strong>ValueError</strong></a> – If the lengths of the given pandas Series for anomalies and normal_idx do not match.</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the lengths of the given pandas Series for anomalies and normal_idx do not match.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -147,7 +151,7 @@ and return a list of event DataFrames intended for further evaluation.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sensor_data</strong> (<em>pd.DataFrame</em>) – A DataFrame with a timestamp as index and numerical sensor data.</p></li>
 <li><p><strong>boolean_information</strong> (<em>pd.Series</em>) – A Series with a timestamp as index and boolean values indicating events.</p></li>
-<li><p><strong>min_event_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The smallest number of consecutive True timestamps needed to define an event.
+<li><p><strong>min_event_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The smallest number of consecutive True timestamps needed to define an event.
 Defaults to 10.</p></li>
 </ul>
 </dd>
@@ -174,7 +178,7 @@ Defaults to 10.</p></li>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="energy_fault_detector.utils.html" class="btn btn-neutral float-left" title="energy_fault_detector.utils" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="energy_fault_detector.utils.visualisation.html" class="btn btn-neutral float-right" title="energy_fault_detector.utils.visualisation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="energy_fault_detector.utils.data_downloads.html" class="btn btn-neutral float-right" title="energy_fault_detector.utils.data_downloads" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
