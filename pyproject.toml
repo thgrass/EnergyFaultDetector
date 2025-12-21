@@ -38,3 +38,6 @@ quick_fault_detector = "energy_fault_detector.main:main"
     "c2c_options.yaml",
     "base_config.yaml"
 ]
+
+[project.optional-dependencies]
+c37118 = ["synchrophasor>=1.0.0a0"]
