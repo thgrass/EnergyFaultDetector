@@ -71,6 +71,12 @@ class C37118FileDataStream(DataStream):
         if rows:
             yield helper._rows_to_df(rows)
 
+    def __next__(self) -> pd.DataFrame:
+        # create an iterator on first call
+        if not hasattr(self, "_it"):
+            self._it = self.__iter__()
+        return next(self._it)
+
     def _try_pop_one_frame(self, buf: bytes) -> Optional[tuple[bytes, bytes]]:
         """
         Try to pop one complete C37.118 frame from the front of buffer.

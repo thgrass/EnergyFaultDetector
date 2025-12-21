@@ -14,8 +14,8 @@ sample.
 
 The primary purpose of this class is to provide sliding (or strided)
 windows over streaming data.  Many anomaly‑detection models require
-fixed‑length time windows as input rather than single samples or windows
-of arbitrary lengths; this adapter assembles such windows on the fly.
+fixed‑length time windows as input rather than single samples; this
+adapter assembles such windows on the fly.
 
 Example usage:
 
@@ -23,11 +23,11 @@ Example usage:
 
     from energy_fault_detector import StreamingFaultDetector
     from energy_fault_detector.streaming.c37118_stream import C37118TCPDataStream
-    from energy_fault_detector.streaming.synchrophasor_stream import SynchrophasorStream
+    from energy_fault_detector.streaming.windowed_data_stream import WindowedDataStream
 
     live_rows = C37118TCPDataStream("192.168.1.10", 4712, frames_per_chunk=1)
     # Wrap the live per‑row stream into fixed windows of 50 samples
-    windowed = SynchrophasorStream(source=live_rows, window_size=50, step_size=1)
+    windowed = WindowedDataStream(source=live_rows, window_size=50, step_size=1)
     detector = StreamingFaultDetector.from_config("path/to/config.yaml")
 
     for window_df in windowed:
@@ -47,10 +47,10 @@ from .data_stream import DataStream
 
 
 @dataclass
-class SynchrophasorStream(DataStream):
+class WindowedDataStream(DataStream):
     """Windowing adapter for streaming data sources.
 
-    A ``SynchrophasorStream`` wraps an underlying row‑oriented source
+    A ``WindowedDataStream`` wraps an underlying row‑oriented source
     (either a :class:`pandas.DataFrame` or another
     :class:`~energy_fault_detector.streaming.data_stream.DataStream` that
     yields DataFrames) and produces overlapping or strided windows of
@@ -76,7 +76,7 @@ class SynchrophasorStream(DataStream):
         # If a DataFrame is provided, wrap it into a simple stream
         if isinstance(self.source, pd.DataFrame):
             self.source = _DataFrameRowStream(self.source)
-        # Validate that source behaves like a DataStream
+        # Validate that source behaves like a DataStream (iterable of DataFrames)
         if not hasattr(self.source, "__iter__"):
             raise TypeError(
                 "source must be a DataFrame or DataStream yielding DataFrames"
@@ -93,7 +93,7 @@ class SynchrophasorStream(DataStream):
         step_size: int = 1,
         timestamp_col: Optional[str] = None,
         **kwargs,
-    ) -> "SynchrophasorStream":
+    ) -> "WindowedDataStream":
         """Create a windowed stream from a CSV file.
 
         The CSV is loaded into a DataFrame, optionally parsing a
@@ -111,7 +111,7 @@ class SynchrophasorStream(DataStream):
                 :func:`pandas.read_csv`.
 
         Returns:
-            SynchrophasorStream: An instance configured for windowing.
+            WindowedDataStream: An instance configured for windowing.
         """
         df = pd.read_csv(file_path, **kwargs)
         if timestamp_col and timestamp_col in df.columns:

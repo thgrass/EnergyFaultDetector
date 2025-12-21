@@ -128,6 +128,12 @@ class C37118TCPDataStream(DataStream):
         if rows:
             yield self._rows_to_df(rows)
 
+    def __next__(self) -> pd.DataFrame:
+        # create an iterator on first call
+        if not hasattr(self, "_it"):
+            self._it = self.__iter__()
+        return next(self._it)
+
     def _rows_to_df(self, rows: List[Dict[str, Any]]) -> pd.DataFrame:
         """Convert list of row dicts into a DataFrame with timestamp index."""
         df = pd.DataFrame(rows)
@@ -202,7 +208,7 @@ class C37118TCPDataStream(DataStream):
           - timestamp (UTC)
           - frequency and rocof (if present)
           - phasors as magnitude/angle pairs: <name>_mag, <name>_ang
-          - analogs and digitals (if present)
+          - other analog and digital fields (if present)
 
         If the frame object exposes different attribute names, this function tries
         a set of common ones.
@@ -274,13 +280,28 @@ class C37118TCPDataStream(DataStream):
             import math
 
             return float(abs(p)), float(math.atan2(p.imag, p.real))
-        # tuple/list
-        if isinstance(p, (tuple, list)) and len(p) >= 2:
-            return float(p[0]), float(p[1])
-        # unknown numeric -> magnitude only
+
+        # tuple/list with at least 2 elements interpreted as (mag, ang)
+        if isinstance(p, (tuple, list)):
+            if len(p) >= 2:
+                try:
+                    return float(p[0]), float(p[1])
+                except (TypeError, ValueError):
+                    return 0.0, 0.0
+            # tuple/list but not usable as scalar magnitude
+            return 0.0, 0.0
+
+        # scalar fallback: attempt to interpret as magnitude only
+        if isinstance(p, (int, float, str, bytes, bytearray, memoryview)):
+            try:
+                return float(p), 0.0
+            except (TypeError, ValueError):
+                return 0.0, 0.0
+
+        # last resort: some objects support __float__ but aren't in the above set
         try:
             return float(p), 0.0
-        except Exception:
+        except (TypeError, ValueError):
             return 0.0, 0.0
 
     def _add_scalars(
