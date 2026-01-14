@@ -35,3 +35,6 @@ test_report.xml
 
 # logging
 *.log
+
+# virtual environment
+.venv/
