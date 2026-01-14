@@ -3,6 +3,8 @@ from typing import Any, Dict, List, Optional, Union
 
 import yaml
 
+from .config import Config
+
 
 def _build_preprocessor_steps(
     *,
@@ -102,35 +104,6 @@ def _build_preprocessor_steps(
     return steps
 
 
-def _dump_yaml_if_requested(
-    config: Dict[str, Any],
-    output_path: Optional[Union[str, Path]],
-) -> None:
-    """
-    Write the configuration dictionary to a YAML file if a path is provided.
-
-    Args:
-        config (Dict[str, Any]): The configuration dictionary to serialize.
-        output_path (Optional[Union[str, Path]]): Destination path. If None, nothing is written.
-
-    Raises:
-        RuntimeError: If PyYAML is not installed but output_path is not None.
-    """
-    if output_path is None:
-        return
-
-    if yaml is None:  # pragma: no cover - optional dependency
-        raise RuntimeError(
-            "PyYAML is not installed; install 'pyyaml' or set output_path=None."
-        )
-
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    with path.open("w", encoding="utf-8") as f:
-        yaml.safe_dump(config, f, sort_keys=False)
-
-
 def generate_quickstart_config(
     output_path: Optional[Union[str, Path]] = "base_config.yaml",
     *,
@@ -153,7 +126,7 @@ def generate_quickstart_config(
     epochs: int = 10,
     layers: Optional[List[int]] = None,
     learning_rate: float = 1e-3,
-) -> Dict[str, Any]:
+) -> Config:
     """
     Generate a minimal, valid configuration for EnergyFaultDetector.
 
@@ -185,7 +158,7 @@ def generate_quickstart_config(
         learning_rate (float): Optimizer learning rate.
 
     Returns:
-        Dict[str, Any]: Configuration dictionary ready for Config(config_dict=...).
+        Config: Configuration ready to use: FaultDetector(config).
 
     Raises:
         ValueError: If early_stopping is True but validation_split is not in (0, 1).
@@ -238,9 +211,10 @@ def generate_quickstart_config(
         # "data_clipping": {"lower_percentile": 0.001, "upper_percentile": 0.999},
     }
 
-    config: Dict[str, Any] = {"train": train_config}
+    config = Config(config_dict={"train": train_config})
 
     # Optionally write YAML
-    _dump_yaml_if_requested(config=config, output_path=output_path)
+    if output_path:
+        config.write_config(output_path)
 
     return config

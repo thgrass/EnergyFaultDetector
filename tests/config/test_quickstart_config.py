@@ -1,14 +1,23 @@
 from unittest import TestCase
 from typing import Any, Dict
+from pathlib import Path
+import tempfile
+import shutil
 
 from energy_fault_detector.config.config import Config
-from energy_fault_detector.config.quickstart_config import generate_quickstart_config  # adjust
+from energy_fault_detector.config.quickstart_config import generate_quickstart_config
 
 
 class TestQuickstartConfig(TestCase):
+    def setUp(self):
+        self.test_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.test_dir)
+
     def test_generate_quickstart_config_valid_dict(self) -> None:
         """Should return a valid config dict that Config accepts and includes required sections."""
-        cfg: Dict[str, Any] = generate_quickstart_config(
+        cfg: Config = generate_quickstart_config(
             output_path=None,
             angle_columns=["theta_deg"],
             counter_columns=["energy_total_kwh"],
@@ -36,8 +45,10 @@ class TestQuickstartConfig(TestCase):
             "Expected a scaler step in the pipeline."
         )
 
-        # Should not raise: validate via Config
-        Config(config_dict=cfg)
+        self.assertTrue(
+            any(n in ("standard_scaler", "minmax_scaler") for n in step_names),
+            "Expected a scaler step in the pipeline."
+        )
 
     def test_generate_quickstart_config_validation_split_guard(self) -> None:
         """If validation split not in (0, 1) it should raise ValueError."""
@@ -45,3 +56,22 @@ class TestQuickstartConfig(TestCase):
             _ = generate_quickstart_config(
                 validation_split=0.0,  # invalid by design
             )
+
+    def test_save_load_quickstart_config(self) -> None:
+        """Test that generated config can be saved and loaded back correctly."""
+        config_path = Path(self.test_dir) / "config.yaml"
+        cfg: Config = generate_quickstart_config(
+            output_path=config_path,
+            angle_columns=["theta_deg"],
+            early_stopping=True,
+            validation_split=0.25
+        )
+
+        self.assertTrue(config_path.exists())
+
+        # Load the config back
+        loaded_cfg = Config(config_path)
+
+        # Compare dictionaries
+        self.assertEqual(cfg.config_dict, loaded_cfg.config_dict)
+        self.assertEqual(loaded_cfg["train"]["data_splitter"]["validation_split"], 0.25)
