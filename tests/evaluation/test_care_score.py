@@ -19,25 +19,25 @@ class TestCARE(unittest.TestCase):
         self.beta = 0.5
         self.test_good_prediction_df = pd.DataFrame(
             data=[
-                [1, 'anomaly', 0.5, 0.869565, 0.9, 73, 8, 1, 2, "Wind Farm A"],
-                [2, 'anomaly', 0.8, 0.625000, 0.5, 73, 5, 3, 3, "Wind Farm B"],
-                [3, 'normal', np.nan, np.nan, 0.8, 77, 0, 1, 0, "Wind Farm A"],
-                [4, 'normal', np.nan, np.nan, 0.5, 100, 0, 4, 0, "Wind Farm B"],
+                [1, 'anomaly', 0.5, 0.869565, 0.9, 73, 1., 100., 8, 1, 2, "Wind Farm A"],
+                [2, 'anomaly', 0.8, 0.625000, 0.5, 73, 1., 100., 5, 3, 3, "Wind Farm B"],
+                [3, 'normal', np.nan, np.nan, 0.8, 77, np.nan, np.nan, 0, 1, 0, "Wind Farm A"],
+                [4, 'normal', np.nan, np.nan, 0.5, 100, np.nan, np.nan, 0, 4, 0, "Wind Farm B"],
             ],
-            columns=['event_id', 'event_label', 'weighted_score', 'f_beta_score', 'accuracy',
-                     'max_criticality', 'tp', 'fp', 'fn', 'park']
+            columns=['event_id', 'event_label', 'weighted_score', 'f_beta_score', 'accuracy', 'max_criticality',
+                     'first_time_detected', 'early_detection_time', 'tp', 'fp', 'fn', 'park']
         )
         self.expected_scores_good = [0.650567632850241, 0.705024154589372, 0.5]
 
         self.test_bad_prediction_df = pd.DataFrame(
             data=[
-                [1, 'anomaly', 0.5, 0.625000, 0.7, 73, 5, 3, 3, "Wind Farm A"],
-                [2, 'anomaly', 0.8, 0.731707, 0.5, 73, 6, 2, 3, "Wind Farm B"],
-                [3, 'normal', np.nan, np.nan, 0.1, 77, 0, 10, 1, "Wind Farm A"],
-                [4, 'normal', np.nan, np.nan, 0.0, 90, 0, 11, 0, "Wind Farm B"],
+                [1, 'anomaly', 0.5, 0.625000, 0.7, 73, 10., 10., 5, 3, 3, "Wind Farm A"],
+                [2, 'anomaly', 0.8, 0.731707, 0.5, 73, 10., 10., 6, 2, 3, "Wind Farm B"],
+                [3, 'normal', np.nan, np.nan, 0.1, 77, np.nan, np.nan, 0, 10, 1, "Wind Farm A"],
+                [4, 'normal', np.nan, np.nan, 0.0, 90, np.nan, np.nan, 0, 11, 0, "Wind Farm B"],
             ],
-            columns=['event_id', 'event_label', 'weighted_score', 'f_beta_score', 'accuracy',
-                     'max_criticality', 'tp', 'fp', 'fn', 'park']
+            columns=['event_id', 'event_label', 'weighted_score', 'f_beta_score', 'accuracy', 'max_criticality',
+                     'first_time_detected', 'early_detection_time', 'tp', 'fp', 'fn', 'park']
         )
         self.expected_scores_bad = [0.05, 0.1, 0.0]
 
@@ -57,7 +57,7 @@ class TestCARE(unittest.TestCase):
         predicted_anomalies = pd.Series([False, True, True])
         with self.assertRaises(ValueError) as context:
             self.care.evaluate_event(0, 2, 'unknown_label', normal_index, predicted_anomalies)
-        self.assertEqual(str(context.exception), 'Unknown event label (should be either `anomaly` or `normal`')
+        self.assertEqual(str(context.exception), 'Unknown event label (should be either `anomaly` or `normal`)')
 
     def test_evaluate_event_for_anomaly(self):
         """Test evaluate_event correctly evaluates an anomaly event."""
@@ -65,6 +65,8 @@ class TestCARE(unittest.TestCase):
         predicted_anomalies = pd.Series([False, True, True])
         evaluation = self.care.evaluate_event(0, 2, 'anomaly', normal_index, predicted_anomalies)
         self.assertIn('event_id', evaluation)
+        self.assertIn('first_time_detected', evaluation)
+        self.assertIn('early_detection_time', evaluation)
         self.assertEqual(evaluation['max_criticality'], 1)
         self.assertEqual(evaluation['tp'], 1)
         self.assertEqual(evaluation['fn'], 1)
