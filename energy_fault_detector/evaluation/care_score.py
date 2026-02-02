@@ -192,7 +192,7 @@ class CAREScore:
         """
 
         if event_label not in ['anomaly', 'normal']:
-            raise ValueError('Unknown event label (should be either `anomaly` or `normal`')
+            raise ValueError('Unknown event label (should be either `anomaly` or `normal`)')
 
         if evaluate_until_event_end not in [True, False, 'normal_only', 'anomaly_only', 'True', 'False']:
             raise ValueError(f"Unknown value for `evaluate_until_event_end`. Should be on of: "
