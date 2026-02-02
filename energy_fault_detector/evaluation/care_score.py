@@ -231,10 +231,23 @@ class CAREScore:
             weighted_score_value = np.nan
 
         # Calculate max criticality up till fault start (=event end)
-        max_criticality = np.max(
-            calculate_criticality(anomalies=predicted_anomalies.loc[:event_end],
+        criticality = calculate_criticality(anomalies=predicted_anomalies.loc[:event_end],
                                   normal_idx=normal_index.loc[:event_end])
+        max_criticality = np.max(
+            criticality
         )
+        # Determine early detection time
+        if event_label == 'anomaly':
+            if any(criticality >= self.criticality_threshold):
+                first_time_detected = criticality[criticality >= self.criticality_threshold].index[0]
+                early_detection_time = event_end - first_time_detected
+                print(early_detection_time)
+            else:
+                first_time_detected = np.nan
+                early_detection_time = np.nan
+        else:
+            first_time_detected = np.nan
+            early_detection_time = np.nan
 
         # We only evaluate predicted anomalies during expected normal operation
         metrics = self._calculate_basic_metrics(
@@ -251,6 +264,8 @@ class CAREScore:
             'event_label': event_label,  # true label
             'weighted_score': weighted_score_value,
             'max_criticality': max_criticality,
+            'first_time_detected': first_time_detected,
+            'early_detection_time': early_detection_time,
             **metrics  # F-score, Accuracy, TP, TN, FN, FP
         }
 
