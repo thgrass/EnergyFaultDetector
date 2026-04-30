@@ -101,8 +101,7 @@ This project is licensed under the [MIT License](./LICENSE).
 If you use this work, please cite us:
 
 **Fault detection in district heating substations**:
-- Enabling Predictive Maintenance in District Heating Substations: A Labelled Dataset and Fault Detection Evaluation Framework based on Service Data. 
-PrePrint on ArXiv. https://doi.org/10.48550/arXiv.2511.14791
+- Enabling Predictive Maintenance in District Heating Substations: A Labelled Dataset and Fault Detection Evaluation Framework based on Service Data. Energy. 2026;355:141178. https://doi.org/10.1016/j.energy.2026.141178
 - Dataset: PreDist Dataset - Operational data of district heating substations labelled with faults and maintenance information. Zenodo, Nov 2025, https://doi.org/10.5281/zenodo.17522254.
 
 **ARCANA Algorithm**:
