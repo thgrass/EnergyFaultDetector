@@ -1,0 +1,329 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>energy_fault_detector.core.fault_detection_model &mdash; EnergyFaultDetector 0.4.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=c87aa342"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="energy_fault_detector.core.fault_detection_result" href="energy_fault_detector.core.fault_detection_result.html" />
+    <link rel="prev" title="energy_fault_detector.core.data_transformer" href="energy_fault_detector.core.data_transformer.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            EnergyFaultDetector
+              <img src="_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="usage_examples.html">Usage examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging Configuration</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">The EnergyFaultDetector package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="energy_fault_detector.html">energy_fault_detector</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.anomaly_scores.html">energy_fault_detector.anomaly_scores</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.autoencoders.html">energy_fault_detector.autoencoders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.config.html">energy_fault_detector.config</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="energy_fault_detector.core.html">energy_fault_detector.core</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.core.html#energy_fault_detector.core.AnomalyScore"><code class="docutils literal notranslate"><span class="pre">AnomalyScore</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.core.html#energy_fault_detector.core.DataTransformer"><code class="docutils literal notranslate"><span class="pre">DataTransformer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.core.html#energy_fault_detector.core.FaultDetectionResult"><code class="docutils literal notranslate"><span class="pre">FaultDetectionResult</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.core.html#energy_fault_detector.core.ModelMetadata"><code class="docutils literal notranslate"><span class="pre">ModelMetadata</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.core.html#energy_fault_detector.core.ThresholdSelector"><code class="docutils literal notranslate"><span class="pre">ThresholdSelector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.core.anomaly_score.html">energy_fault_detector.core.anomaly_score</a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.core.autoencoder.html">energy_fault_detector.core.autoencoder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.core.data_transformer.html">energy_fault_detector.core.data_transformer</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">energy_fault_detector.core.fault_detection_model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.core.fault_detection_result.html">energy_fault_detector.core.fault_detection_result</a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.core.model_factory.html">energy_fault_detector.core.model_factory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.core.save_load_mixin.html">energy_fault_detector.core.save_load_mixin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.core.threshold_selector.html">energy_fault_detector.core.threshold_selector</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.data_preprocessing.html">energy_fault_detector.data_preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.data_splitting.html">energy_fault_detector.data_splitting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.html">energy_fault_detector.evaluation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.quick_fault_detection.html">energy_fault_detector.quick_fault_detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.root_cause_analysis.html">energy_fault_detector.root_cause_analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.threshold_selectors.html">energy_fault_detector.threshold_selectors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.utils.html">energy_fault_detector.utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.fault_detector.html">energy_fault_detector.fault_detector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.main.html">energy_fault_detector.main</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.registration.html">energy_fault_detector.registration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">EnergyFaultDetector</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">energy_fault_detector</a></li>
+          <li class="breadcrumb-item"><a href="energy_fault_detector.html">energy_fault_detector</a></li>
+          <li class="breadcrumb-item"><a href="energy_fault_detector.core.html">energy_fault_detector.core</a></li>
+      <li class="breadcrumb-item active">energy_fault_detector.core.fault_detection_model</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/energy_fault_detector.core.fault_detection_model.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-energy_fault_detector.core.fault_detection_model">
+<span id="energy-fault-detector-core-fault-detection-model"></span><h1>energy_fault_detector.core.fault_detection_model<a class="headerlink" href="#module-energy_fault_detector.core.fault_detection_model" title="Link to this heading"></a></h1>
+<p>Template for anomaly detection models</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="energy_fault_detector.core.fault_detection_model.FaultDetectionModel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FaultDetectionModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_directory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'models'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.core.fault_detection_model.FaultDetectionModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Template for fault detection models. Train and predicts should be implemented.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="energy_fault_detector.config.config.html#energy_fault_detector.config.config.Config" title="energy_fault_detector.config.config.Config"><em>Config</em></a><em>]</em>) – Config object with fault detection configuration. Defaults to None.
+If None, the models need to be loaded from a path using the <cite>load_models</cite> method.</p></li>
+<li><p><strong>model_directory</strong> (<em>str</em><em>, </em><em>optional</em>) – Directory to save models to. Defaults to ‘output’.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="energy_fault_detector.core.fault_detection_model.FaultDetectionModel.anomaly_score">
+<span class="sig-name descname"><span class="pre">anomaly_score</span></span><a class="headerlink" href="#energy_fault_detector.core.fault_detection_model.FaultDetectionModel.anomaly_score" title="Link to this definition"></a></dt>
+<dd><p>AnomalyScore object.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="energy_fault_detector.core.fault_detection_model.FaultDetectionModel.autoencoder">
+<span class="sig-name descname"><span class="pre">autoencoder</span></span><a class="headerlink" href="#energy_fault_detector.core.fault_detection_model.FaultDetectionModel.autoencoder" title="Link to this definition"></a></dt>
+<dd><p>Autoencoder object.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="energy_fault_detector.core.fault_detection_model.FaultDetectionModel.threshold_selector">
+<span class="sig-name descname"><span class="pre">threshold_selector</span></span><a class="headerlink" href="#energy_fault_detector.core.fault_detection_model.FaultDetectionModel.threshold_selector" title="Link to this definition"></a></dt>
+<dd><p>ThresholdSelector object.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="energy_fault_detector.core.fault_detection_model.FaultDetectionModel.data_preprocessor">
+<span class="sig-name descname"><span class="pre">data_preprocessor</span></span><a class="headerlink" href="#energy_fault_detector.core.fault_detection_model.FaultDetectionModel.data_preprocessor" title="Link to this definition"></a></dt>
+<dd><p>DataPreprocessorPipeline object.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="energy_fault_detector.core.fault_detection_model.FaultDetectionModel.save_timestamps">
+<span class="sig-name descname"><span class="pre">save_timestamps</span></span><a class="headerlink" href="#energy_fault_detector.core.fault_detection_model.FaultDetectionModel.save_timestamps" title="Link to this definition"></a></dt>
+<dd><p>a list of string timestamps, indicating when the model was saved.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="energy_fault_detector.core.fault_detection_model.FaultDetectionModel.fit">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_models</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_models</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.core.fault_detection_model.FaultDetectionModel.fit" title="Link to this definition"></a></dt>
+<dd><p>Fit models on the given sensor_data and save them locally and return the metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sensor_data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></span>) – pandas DataFrame with the sensor data to use.
+The time stamp should be the index and the sensor values as columns.</p></li>
+<li><p><strong>normal_index</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></span>) – a pandas Series indicating normal behaviour as boolean with the timestamp as index.</p></li>
+<li><p><strong>save_models</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to save models. Defaults to True.</p></li>
+<li><p><strong>overwrite_models</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, existing model directories can be overwritten. Defaults to
+False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="energy_fault_detector.core.fault_detection_result.html#energy_fault_detector.core.fault_detection_result.ModelMetadata" title="energy_fault_detector.core.fault_detection_result.ModelMetadata"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelMetadata</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ModelMetadata object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="energy_fault_detector.core.fault_detection_model.FaultDetectionModel.load_models">
+<span class="sig-name descname"><span class="pre">load_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.core.fault_detection_model.FaultDetectionModel.load_models" title="Link to this definition"></a></dt>
+<dd><p>Load saved models given the model path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model_path</strong> (<em>str</em><em>, </em><em>Path</em>) – Path to the model files.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="energy_fault_detector.core.fault_detection_model.FaultDetectionModel.predict">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">asset_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.core.fault_detection_model.FaultDetectionModel.predict" title="Link to this definition"></a></dt>
+<dd><p>Predict with given models for specific asset ID. Return dictionary with results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>asset_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>) – asset ID of the asset for which the model must be applied.</p></li>
+<li><p><strong>model_path</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>) – path to the models to be applied.</p></li>
+<li><p><strong>sensor_data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></span>) – pandas DataFrame with the sensor data to use.
+The time stamp should be the index and the sensor values as columns.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="energy_fault_detector.core.fault_detection_result.html#energy_fault_detector.core.fault_detection_result.FaultDetectionResult" title="energy_fault_detector.core.fault_detection_result.FaultDetectionResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">FaultDetectionResult</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>FaultDetectionResult object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="energy_fault_detector.core.fault_detection_model.FaultDetectionModel.save_models">
+<span class="sig-name descname"><span class="pre">save_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.core.fault_detection_model.FaultDetectionModel.save_models" title="Link to this definition"></a></dt>
+<dd><p>Save the model objects. Model files are saved in self.model_directory/model_name/datetime if overwrite is set
+to False, otherwise, they are saved in self.model_directory/model_name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> (<em>optional str</em>) – model name, will be the directory in which the model files are saved.
+Changes model path to self.model_directory/model_name. Defaults to None.</p></li>
+<li><p><strong>overwrite</strong> (<em>optional bool</em>) – If True existing folders can be overwritten. Default: False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The full path to the saved models and the timestamp of the function call in string format.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="energy_fault_detector.core.fault_detection_model.FaultDetectionModel.train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.core.fault_detection_model.FaultDetectionModel.train" title="Link to this definition"></a></dt>
+<dd><p>Same as the <cite>fit</cite>-method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sensor_data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></span>) – pandas DataFrame with the sensor data to use.
+The time stamp should be the index and the sensor values as columns.</p></li>
+<li><p><strong>normal_index</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></span>) – a pandas Series indicating normal behaviour as boolean with the timestamp as index.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="energy_fault_detector.core.fault_detection_result.html#energy_fault_detector.core.fault_detection_result.ModelMetadata" title="energy_fault_detector.core.fault_detection_result.ModelMetadata"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelMetadata</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ModelMetadata object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="energy_fault_detector.core.fault_detection_model.FaultDetectionModel.train_val_split">
+<span class="sig-name descname"><span class="pre">train_val_split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.core.fault_detection_model.FaultDetectionModel.train_val_split" title="Link to this definition"></a></dt>
+<dd><p>Split data in train and validation data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>]</span>) – dataframe/list/array to split</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>x_train, x_val</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="energy_fault_detector.core.fault_detection_model.NoTrainingData">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">NoTrainingData</span></span><a class="headerlink" href="#energy_fault_detector.core.fault_detection_model.NoTrainingData" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Raised when no training data is available.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="energy_fault_detector.core.data_transformer.html" class="btn btn-neutral float-left" title="energy_fault_detector.core.data_transformer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="energy_fault_detector.core.fault_detection_result.html" class="btn btn-neutral float-right" title="energy_fault_detector.core.fault_detection_result" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Fraunhofer IEE.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

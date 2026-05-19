@@ -1,0 +1,250 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>energy_fault_detector.quick_fault_detection.quick_fault_detector &mdash; EnergyFaultDetector 0.4.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=c87aa342"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="energy_fault_detector.root_cause_analysis" href="energy_fault_detector.root_cause_analysis.html" />
+    <link rel="prev" title="energy_fault_detector.quick_fault_detection.output" href="energy_fault_detector.quick_fault_detection.output.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            EnergyFaultDetector
+              <img src="_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="usage_examples.html">Usage examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging Configuration</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">The EnergyFaultDetector package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="energy_fault_detector.html">energy_fault_detector</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.anomaly_scores.html">energy_fault_detector.anomaly_scores</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.autoencoders.html">energy_fault_detector.autoencoders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.config.html">energy_fault_detector.config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.core.html">energy_fault_detector.core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.data_preprocessing.html">energy_fault_detector.data_preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.data_splitting.html">energy_fault_detector.data_splitting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.evaluation.html">energy_fault_detector.evaluation</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="energy_fault_detector.quick_fault_detection.html">energy_fault_detector.quick_fault_detection</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.quick_fault_detection.configuration.html">energy_fault_detector.quick_fault_detection.configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.quick_fault_detection.data_loading.html">energy_fault_detector.quick_fault_detection.data_loading</a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.quick_fault_detection.optimization.html">energy_fault_detector.quick_fault_detection.optimization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="energy_fault_detector.quick_fault_detection.output.html">energy_fault_detector.quick_fault_detection.output</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">energy_fault_detector.quick_fault_detection.quick_fault_detector</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.root_cause_analysis.html">energy_fault_detector.root_cause_analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.threshold_selectors.html">energy_fault_detector.threshold_selectors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.utils.html">energy_fault_detector.utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.fault_detector.html">energy_fault_detector.fault_detector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.main.html">energy_fault_detector.main</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy_fault_detector.registration.html">energy_fault_detector.registration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">EnergyFaultDetector</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">energy_fault_detector</a></li>
+          <li class="breadcrumb-item"><a href="energy_fault_detector.html">energy_fault_detector</a></li>
+          <li class="breadcrumb-item"><a href="energy_fault_detector.quick_fault_detection.html">energy_fault_detector.quick_fault_detection</a></li>
+      <li class="breadcrumb-item active">energy_fault_detector.quick_fault_detection.quick_fault_detector</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/energy_fault_detector.quick_fault_detection.quick_fault_detector.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-energy_fault_detector.quick_fault_detection.quick_fault_detector">
+<span id="energy-fault-detector-quick-fault-detection-quick-fault-detector"></span><h1>energy_fault_detector.quick_fault_detection.quick_fault_detector<a class="headerlink" href="#module-energy_fault_detector.quick_fault_detection.quick_fault_detector" title="Link to this heading"></a></h1>
+<p>Quick energy fault detection, to try out the EnergyFaultDetector model on a specific dataset.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="energy_fault_detector.quick_fault_detection.quick_fault_detector.analyze_event">
+<span class="sig-name descname"><span class="pre">analyze_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">anomaly_detector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_losses</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.quick_fault_detection.quick_fault_detector.analyze_event" title="Link to this definition"></a></dt>
+<dd><p>Runs root cause analysis for detected anomaly events.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>anomaly_detector</strong> (<a class="reference internal" href="energy_fault_detector.fault_detector.html#energy_fault_detector.fault_detector.FaultDetector" title="energy_fault_detector.fault_detector.FaultDetector"><em>FaultDetector</em></a>) – trained AnomalyDetector instance.</p></li>
+<li><p><strong>event_data</strong> (<em>pd.DataFrame</em>) – data from a detected anomaly event</p></li>
+<li><p><strong>track_losses</strong> (<em>bool</em>) – If True ARCANA-losses are tracked.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Series of importance values for every feature in event_data.
+tracked_losses (pd.DataFrame): Potentially empty DataFrame containing recorded ARCANA losses.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>importances (pd.Series)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="energy_fault_detector.quick_fault_detection.quick_fault_detector.quick_fault_detector">
+<span class="sig-name descname"><span class="pre">quick_fault_detector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csv_test_data_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_test_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_test_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status_data_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status_label_confidence_percentage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features_to_exclude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">automatic_optimization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_debug_plots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_anomaly_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">18</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#energy_fault_detector.quick_fault_detection.quick_fault_detector.quick_fault_detector" title="Link to this definition"></a></dt>
+<dd><p>Analyzes provided data using an autoencoder based approach for identifying anomalies based on a learned normal
+behavior. Anomalies are then aggregated to events and further analyzed.
+Runs the entire fault detection module chain in one function call. Sections of this function call are:
+1. Data Loading and verification
+2. Config selection and optimization
+3. AnomalyDetector training
+4. AnomalyDetector prediction
+5. Event aggregation
+6. ARCANA-Analysis of detected events
+7. Visualization of output</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>csv_data_path</strong> (<em>str</em>) – Path to a csv-file containing tabular data which must contain training data for the
+autoencoder. This data can also contain test data for evaluation, but in this case train_test_column and
+optionally train_test_mapping must be provided.</p></li>
+<li><p><strong>csv_test_data_path</strong> (<em>Optional str</em>) – Path to a csv file containing test data for evaluation. If test data is
+provided in both ways (i.e. via csv_test_data_path and in csv_data_path + train_test_column) then both test
+data sets will be fused into one. Default is None.</p></li>
+<li><p><strong>train_test_column_name</strong> (<em>Optional str</em>) – Name of the column which specifies which part of the data in
+csv_data_path is training data and which is test data. If this column does not contain boolean values or
+values which can be cast into boolean values, then train_test_mapping must be provided.
+True values are interpreted as training data. Default is None.</p></li>
+<li><p><strong>train_test_mapping</strong> (<em>Optional dict</em>) – Dictionary which defines a mapping of all non-boolean values in the
+train_test_column to booleans. Keys of the dictionary must be values from train_test_column, and they must
+have a datatype which can be cast to the datatype of train_test_column. Values of this dictionary must be
+booleans or at least castable to booleans. Default is None.</p></li>
+<li><p><strong>time_column_name</strong> (<em>Optional str</em>) – Name of the column containing time stamp information.</p></li>
+<li><p><strong>status_data_column_name</strong> (<em>Optional str</em>) – Name of the column which specifies the status of each row in
+csv_data_path. The status is used to define which rows represent normal behavior (i.e. which rows can be
+used for the autoencoder training) and which rows contain anomalous behavior. If this column does not
+contain boolean values, status_mapping must be provided. If status_data_column_name is not provided, all
+rows in csv_data_path are assumed to be normal and a warning will be logged. Default is None.</p></li>
+<li><p><strong>status_mapping</strong> (<em>Optional dict</em>) – Dictionary which defines a mapping of all non-boolean values in the
+status_data_column to booleans. Keys of the dictionary must be values from status_data_column, and they must
+have a datatype which can be cast to the datatype of train_test_column. Values of this dictionary must be
+booleans or at least castable to booleans. True values are interpreted as normal status. Default is None.</p></li>
+<li><p><strong>status_label_confidence_percentage</strong> (<em>Optional float</em>) – Specifies how sure the user is that the provided status
+labels and derived normal_indexes are correct. This determines the quantile for quantile threshold method.
+Default is 0.95.</p></li>
+<li><p><strong>features_to_exclude</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – List of column names which are present in the csv-files but which
+should be ignored for this failure detection run. Default is None.</p></li>
+<li><p><strong>angle_features</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – List of column names which represent angle-features. This enables a
+specialized preprocessing of angle features, which might otherwise hinder the failure detection process.
+Default is None.</p></li>
+<li><p><strong>automatic_optimization</strong> (<em>bool</em>) – If True, an automatic hyperparameter optimization is done based on the dimension
+of the provided dataset. Default is True.</p></li>
+<li><p><strong>enable_debug_plots</strong> (<em>bool</em>) – If True advanced information for debugging is added to the result plots.
+Default is False.</p></li>
+<li><p><strong>min_anomaly_length</strong> (<em>int</em>) – Minimal number of consecutive anomalies (i.e. data points with an anomaly score above
+the FaultDetector threshold) to define an anomaly event.</p></li>
+<li><p><strong>save_dir</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Directory to save the output plots. If not provided, the plots are not saved.
+Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>FaultDetectionResult object with the following DataFrames:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>predicted_anomalies: DataFrame with a column ‘anomaly’ (bool).</p></li>
+<li><p>reconstruction: DataFrame with reconstruction of the sensor data with timestamp as index.</p></li>
+<li><p>deviations: DataFrame with reconstruction errors.</p></li>
+<li><p>anomaly_score: DataFrame with anomaly scores for each timestamp.</p></li>
+<li><p>bias_data: DataFrame with ARCANA results with timestamp as index. None if ARCANA was not run.</p></li>
+<li><p>arcana_losses: DataFrame containing recorded values for all losses in ARCANA. None if ARCANA was not run.</p></li>
+<li><p>tracked_bias: List of DataFrames. None if ARCANA was not run.</p></li>
+</ul>
+</div></blockquote>
+<p>and the detected anomaly events as dataframe.</p>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple(<a class="reference internal" href="energy_fault_detector.core.html#energy_fault_detector.core.FaultDetectionResult" title="energy_fault_detector.core.FaultDetectionResult">FaultDetectionResult</a>, pd.DataFrame)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="energy_fault_detector.quick_fault_detection.output.html" class="btn btn-neutral float-left" title="energy_fault_detector.quick_fault_detection.output" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="energy_fault_detector.root_cause_analysis.html" class="btn btn-neutral float-right" title="energy_fault_detector.root_cause_analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Fraunhofer IEE.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
