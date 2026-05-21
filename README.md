@@ -1,8 +1,8 @@
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/AEFDI/EnergyFaultDetector/blob/main/img/2025_Logo_Energy-Fault-Detector_white-green.png">
-  <source media="(prefers-color-scheme: light)" srcset="https://github.com/AEFDI/EnergyFaultDetector/blob/main/img/Logo_Energy-Fault-Detector.png">
-  <img alt="EnergyFaultDetector Logo" src="https://github.com/AEFDI/EnergyFaultDetector/blob/main/img/Logo_Energy-Fault-Detector.png" height="100">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/AEFDI/EnergyFaultDetector/main/img/2025_Logo_Energy-Fault-Detector_white-green.png">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/AEFDI/EnergyFaultDetector/main/img/Logo_Energy-Fault-Detector.png">
+  <img alt="EnergyFaultDetector Logo" src="https://raw.githubusercontent.com/AEFDI/EnergyFaultDetector/main/img/Logo_Energy-Fault-Detector.png" height="100">
 </picture>
 
 
@@ -19,7 +19,7 @@ these methods, which can be adapted to the respective use case via a single conf
 The software is particularly valuable in the context of the future energy system, optimizing the monitoring and enabling
 predictive maintenance of renewable energy assets.
 
-<img src="https://github.com/AEFDI/EnergyFaultDetector/blob/main/img/OSS-Grafical_abstract2.png" alt="drawing" width="600" style="display: block; margin: 0 auto" />
+<img src="https://raw.githubusercontent.com/AEFDI/EnergyFaultDetector/main/img/OSS-Grafical_abstract2.png" alt="drawing" width="600" style="display: block; margin: 0 auto" />
 
 ## Main Features
 - **User-friendly interface**: Easy to use and quick to demo using the [command line interface](#Quick-fault-detection).
@@ -101,8 +101,7 @@ This project is licensed under the [MIT License](./LICENSE).
 If you use this work, please cite us:
 
 **Fault detection in district heating substations**:
-- Enabling Predictive Maintenance in District Heating Substations: A Labelled Dataset and Fault Detection Evaluation Framework based on Service Data. 
-PrePrint on ArXiv. https://doi.org/10.48550/arXiv.2511.14791
+- Enabling Predictive Maintenance in District Heating Substations: A Labelled Dataset and Fault Detection Evaluation Framework based on Service Data. Energy. 2026;355:141178. https://doi.org/10.1016/j.energy.2026.141178
 - Dataset: PreDist Dataset - Operational data of district heating substations labelled with faults and maintenance information. Zenodo, Nov 2025, https://doi.org/10.5281/zenodo.17522254.
 
 **ARCANA Algorithm**:
