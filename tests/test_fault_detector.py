@@ -10,7 +10,11 @@ import pandas as pd
 import numpy as np
 
 from energy_fault_detector.fault_detector import FaultDetector, Config
-from energy_fault_detector.autoencoders import ConditionalAE
+from energy_fault_detector.autoencoders import (
+    BidirectionalLSTMSeq2OneAutoencoder,
+    ConditionalAE,
+    LSTMSeq2OneAutoencoder,
+)
 
 mock_autoencoder = MagicMock()
 mock_data_preprocessor = MagicMock()
@@ -53,8 +57,7 @@ class TestFaultDetectorSaveLoad(unittest.TestCase):
         self.assertEqual(expected_path, model_path)
 
         # Create a new FaultDetector instance and load the saved models
-        loaded_fault_detector = FaultDetector(config=self.conf, model_directory=self.test_dir)
-        loaded_fault_detector.load_models(model_path=model_path)
+        loaded_fault_detector = FaultDetector.load(model_path=model_path)
 
         # Compare the attributes of the original and loaded models
         self.assertIsNotNone(self.fault_detector.autoencoder)
@@ -84,11 +87,11 @@ class TestFaultDetectorSaveLoad(unittest.TestCase):
                                           overwrite_models=True)
         self.assertEqual(self.test_dir, results.model_path)
         # Check path with a model name
-        model_path, _ = self.fault_detector.save_models('my_model', overwrite=False)
+        model_path, _ = self.fault_detector.save('my_model', overwrite=False)
         expected_path = os.path.join(self.test_dir, 'my_model', self.fault_detector.save_timestamps[-1])
         self.assertEqual(expected_path, model_path)
         # and when overwrite = True
-        model_path, _ = self.fault_detector.save_models('my_model', overwrite=True)
+        model_path, _ = self.fault_detector.save('my_model', overwrite=True)
         expected_path = os.path.join(self.test_dir, 'my_model')
         self.assertEqual(expected_path, model_path)
 
@@ -136,19 +139,12 @@ class TestFaultDetector(unittest.TestCase):
         self.assertEqual(fault_detector.model_directory, str(self.test_model_dir))
         self.assertEqual(fault_detector.config, self.conf)
 
-    def test_missing_config(self):
-        with self.assertLogs('energy_fault_detector', level='DEBUG') as cm:
-            ad = FaultDetector(model_directory=self.test_model_dir)
-            self.assertEqual(cm.output,
-                             [
-                                 'DEBUG:energy_fault_detector:No configuration set. Load models and config from path with the `FaultDetector.load_models` method.'])
-
     def test_save_models(self):
         self.conf.write_config = MagicMock()
         fault_detector = self._create_fault_detector(self.conf)
 
         asset_id = 1
-        path, dt = fault_detector.save_models(model_name=asset_id)
+        path, dt = fault_detector.save(model_name=asset_id)
 
         model_objects = [mock_score, mock_data_preprocessor, mock_autoencoder, mock_threshold]
         names = ['anomaly_score', 'data_preprocessor', 'autoencoder', 'threshold_selector']
@@ -161,15 +157,21 @@ class TestFaultDetector(unittest.TestCase):
         self.assertEqual(fault_detector.config.write_config.call_args[0][0],
                          os.path.join(fault_detector.model_directory, str(asset_id), dt, 'config.yaml'))
 
-    def test_load_models(self):
-        fault_detector = self._create_fault_detector(self.conf)
-        fault_detector._load_pickled_model = MagicMock()
-        fault_detector._load_pickled_model.side_effect = [mock_data_preprocessor,
-                                                          mock_autoencoder,
-                                                          mock_threshold,
-                                                          mock_score]
+    @patch("energy_fault_detector.core.fault_detection_model.FaultDetectionModel._load_pickled_model")
+    @patch("energy_fault_detector.config.Config.read_config")
+    def test_load_models(self, mock_load_pickled_model, mock_read_config):
+        mock_load_pickled_model.side_effect = [
+            mock_data_preprocessor,
+            mock_autoencoder,
+            mock_threshold,
+            mock_score,
+        ]
+        mock_read_config = MagicMock()
 
-        fault_detector.load_models(model_path='path_to_saved_models')
+        fault_detector = FaultDetector.load("path_to_saved_models")
+
+        # Assert: we got a FaultDetector instance
+        self.assertIsInstance(fault_detector, FaultDetector)
         names = ['data_preprocessor', 'autoencoder', 'threshold_selector', 'anomaly_score']
         for call_args, name in zip(fault_detector._load_pickled_model.call_args_list, names):
             self.assertEqual(call_args[1]['model_type'], name)
@@ -243,7 +245,7 @@ class TestFaultDetector(unittest.TestCase):
     @patch('energy_fault_detector.root_cause_analysis.arcana.Arcana.find_arcana_bias')
     def test_predict(self, mock_find_arcana_bias):
         fault_detector = self._create_fault_detector(self.conf)
-        fault_detector.load_models = MagicMock()  # ensures we use the mock model objects
+        fault_detector._load_from_path = MagicMock()  # ensures we use the mock model objects
 
         # set up test
         mock_data_preprocessor.transform.return_value = self.sensor_data
@@ -270,9 +272,16 @@ class TestFaultDetector(unittest.TestCase):
         mock_find_arcana_bias.assert_called_once()
         mock_find_arcana_bias.assert_called_with(x=self.sensor_data, track_losses=False, track_bias=False)
 
+        # Verify reconstruction was passed to get_reconstruction_error
+        mock_autoencoder.get_reconstruction_error.assert_called_once()
+        call_kwargs = mock_autoencoder.get_reconstruction_error.call_args
+        self.assertIn('reconstruction', call_kwargs.kwargs)
+
+        # predict should only be called once (not again inside get_reconstruction_error)
+        mock_autoencoder.predict.assert_called_once()
+
     def test__fit_threshold(self):
         fault_detector = self._create_fault_detector(self.conf)
-        fault_detector.load_models = MagicMock()  # ensures we use the mock model objects
 
         # set up test
         mock_data_preprocessor.transform.return_value = self.sensor_data
@@ -310,3 +319,167 @@ class TestFaultDetectorModelCreation(unittest.TestCase):
         model = FaultDetector(config, model_directory=self.test_model_dir)
         self.assertIsInstance(model.autoencoder, ConditionalAE)
         self.assertListEqual(model.autoencoder.conditional_features, ['feature_a', 'feature_b'])
+
+    def test_sequential_model_created(self):
+        config = Config(os.path.join(PROJECT_ROOT, './tests/test_data/test_config_ts_freq.yaml'))
+        model = FaultDetector(config, model_directory=self.test_model_dir)
+        self.assertIsInstance(model.autoencoder, LSTMSeq2OneAutoencoder)
+
+    def test_bidirectional_sequential_model_created(self):
+        config = Config(os.path.join(PROJECT_ROOT, './tests/test_data/test_config_bilstm_seq2one.yaml'))
+        model = FaultDetector(config, model_directory=self.test_model_dir)
+        self.assertIsInstance(model.autoencoder, BidirectionalLSTMSeq2OneAutoencoder)
+
+
+class TestFaultDetectorSequenceSaveLoad(unittest.TestCase):
+    """Round-trip saving/loading for a sequence AE + FaultDetector."""
+
+    def setUp(self) -> None:
+        self.config_path = os.path.join(PROJECT_ROOT, 'tests/test_data/test_config_ts_freq.yaml')
+        self.conf = Config(self.config_path)
+
+        self.tmp_dir = tempfile.mkdtemp()
+
+        # Synthetic time series matching ts_freq = 30s
+        n = 200
+        index = pd.date_range("2025-01-01", periods=n, freq="30s")
+        np.random.seed(42)
+        self.sensor_data = pd.DataFrame(
+            np.random.randn(n, 3), index=index, columns=["f1", "f2", "f3"]
+        )
+        # For training we assume all normal
+        self.normal_index = pd.Series(True, index=index)
+
+    def tearDown(self) -> None:
+        shutil.rmtree(self.tmp_dir)
+
+    def test_sequence_model_save_and_load_roundtrip(self) -> None:
+        # Train and save
+        fd = FaultDetector(config=self.conf, model_directory=self.tmp_dir)
+        result = fd.fit(sensor_data=self.sensor_data, normal_index=self.normal_index)
+        model_path = result.model_path
+
+        # Sanity: we really trained a sequence AE
+        self.assertIsInstance(fd.autoencoder, LSTMSeq2OneAutoencoder)
+        sb = fd.autoencoder.sequence_builder
+        self.assertEqual(sb.sequence_length, 36)
+        self.assertEqual(sb.stride, 1)
+        self.assertEqual(sb.pad_incomplete, False)
+        self.assertEqual(sb.pad_value, 0.0)
+
+        # Load into a fresh FaultDetector
+        fd2 = FaultDetector.load(model_path=model_path)
+
+        # Autoencoder type and sequence_builder attributes should match
+        self.assertIsInstance(fd2.autoencoder, LSTMSeq2OneAutoencoder)
+        sb2 = fd2.autoencoder.sequence_builder
+        self.assertEqual(sb2.sequence_length, sb.sequence_length)
+        self.assertEqual(sb2.stride, sb.stride)
+        self.assertEqual(sb2.pad_incomplete, sb.pad_incomplete)
+        self.assertEqual(sb2.pad_value, sb.pad_value)
+        self.assertEqual(sb2.ts_freq, sb.ts_freq)
+
+        # Weights should be equal
+        w1 = fd.autoencoder.model.get_weights()
+        w2 = fd2.autoencoder.model.get_weights()
+        self.assertEqual(len(w1), len(w2))
+        for a, b in zip(w1, w2):
+            np.testing.assert_allclose(a, b, atol=1e-6)
+
+        # Config should round-trip as well
+        self.assertDictEqual(fd.config.config_dict, fd2.config.config_dict)
+
+
+class TestFaultDetectorBidirectionalSequenceSaveLoad(unittest.TestCase):
+    """Round-trip saving/loading for a bidirectional sequence AE + FaultDetector."""
+
+    def setUp(self) -> None:
+        self.config_path = os.path.join(PROJECT_ROOT, 'tests/test_data/test_config_bilstm_seq2one.yaml')
+        self.conf = Config(self.config_path)
+
+        self.tmp_dir = tempfile.mkdtemp()
+
+        n = 200
+        index = pd.date_range("2025-01-01", periods=n, freq="30s")
+        np.random.seed(42)
+        self.sensor_data = pd.DataFrame(
+            np.random.randn(n, 3), index=index, columns=["f1", "f2", "f3"]
+        )
+        self.normal_index = pd.Series(True, index=index)
+
+    def tearDown(self) -> None:
+        shutil.rmtree(self.tmp_dir)
+
+    def test_sequence_model_save_and_load_roundtrip(self) -> None:
+        fd = FaultDetector(config=self.conf, model_directory=self.tmp_dir)
+        result = fd.fit(sensor_data=self.sensor_data, normal_index=self.normal_index)
+        model_path = result.model_path
+
+        self.assertIsInstance(fd.autoencoder, BidirectionalLSTMSeq2OneAutoencoder)
+        sb = fd.autoencoder.sequence_builder
+        self.assertEqual(sb.sequence_length, 36)
+        self.assertEqual(sb.stride, 1)
+        self.assertEqual(sb.pad_incomplete, False)
+        self.assertEqual(sb.pad_value, 0.0)
+
+        fd2 = FaultDetector.load(model_path=model_path)
+
+        self.assertIsInstance(fd2.autoencoder, BidirectionalLSTMSeq2OneAutoencoder)
+        sb2 = fd2.autoencoder.sequence_builder
+        self.assertEqual(sb2.sequence_length, sb.sequence_length)
+        self.assertEqual(sb2.stride, sb.stride)
+        self.assertEqual(sb2.pad_incomplete, sb.pad_incomplete)
+        self.assertEqual(sb2.pad_value, sb.pad_value)
+        self.assertEqual(sb2.ts_freq, sb.ts_freq)
+
+        w1 = fd.autoencoder.model.get_weights()
+        w2 = fd2.autoencoder.model.get_weights()
+        self.assertEqual(len(w1), len(w2))
+        for a, b in zip(w1, w2):
+            np.testing.assert_allclose(a, b, atol=1e-6)
+
+        self.assertDictEqual(fd.config.config_dict, fd2.config.config_dict)
+
+
+class TestAutoencoderGetReconstructionError(unittest.TestCase):
+    """Test that get_reconstruction_error skips predict when reconstruction is provided."""
+
+    def setUp(self):
+        self.sensor_data = pd.DataFrame(
+            [[1., 2., 3.], [4., 5., 6.]], columns=['a', 'b', 'c']
+        )
+        self.reconstruction = pd.DataFrame(
+            [[1.1, 2.0, 3.0], [4.0, 4.9, 6.0]], columns=['a', 'b', 'c']
+        )
+
+    def test_skips_predict_when_reconstruction_provided(self):
+        """predict() should NOT be called when reconstruction is passed."""
+        from energy_fault_detector.autoencoders import MultilayerAutoencoder
+
+        ae = MultilayerAutoencoder(layers=[5], code_size=2, epochs=1)
+        ae.create_model(input_dimension=3)
+        ae.compile_model()
+        # Fit minimally so _is_fitted() passes
+        ae.history = {'loss': [0.1]}
+
+        with patch.object(ae, 'predict', wraps=ae.predict) as mock_predict:
+            result = ae.get_reconstruction_error(
+                self.sensor_data, reconstruction=self.reconstruction
+            )
+            mock_predict.assert_not_called()
+
+        expected = self.reconstruction - self.sensor_data
+        pd.testing.assert_frame_equal(result, expected)
+
+    def test_calls_predict_when_reconstruction_is_none(self):
+        """predict() should be called when reconstruction is not passed."""
+        from energy_fault_detector.autoencoders import MultilayerAutoencoder
+
+        ae = MultilayerAutoencoder(layers=[5], code_size=2, epochs=1)
+        ae.create_model(input_dimension=3)
+        ae.compile_model()
+        ae.history = {'loss': [0.1]}
+
+        with patch.object(ae, 'predict', return_value=self.reconstruction) as mock_predict:
+            result = ae.get_reconstruction_error(self.sensor_data)
+            mock_predict.assert_called_once()

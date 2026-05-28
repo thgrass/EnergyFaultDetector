@@ -9,11 +9,10 @@ authors = [
 ]
 description = "Automated fault detection in renewable energy assets and power grids."
 readme = "README.md"
-requires-python = ">=3.9,<3.12"
+requires-python = ">=3.10,<3.12"
 classifiers = [
     'Development Status :: 4 - Beta',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
     "Operating System :: OS Independent",
@@ -21,7 +20,7 @@ classifiers = [
 ]
 license = { file = "LICENSE" }
 dependencies = [
-    "numpy>=1.23.5,<=1.26.4",
+    "numpy>=1.23.5,<2.0",
     "scipy>=1.11,<1.17",
     "tensorflow==2.15.1",
     "pyyaml",
@@ -67,7 +66,7 @@ quick_fault_detector = "energy_fault_detector.main:main"
 "energy_fault_detector" = [
     "logging.yaml",
     "c2c_options.yaml",
-    "base_config.yaml"
+    "base_config.yaml",
 ]
 
 [tool.pytest.ini_options]

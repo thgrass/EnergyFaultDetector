@@ -25,12 +25,15 @@ To install the `energy-fault-detector` package, run:
 .. toctree::
     :caption: Contents
     :glob:
-    :maxdepth: 2
+    :maxdepth: 1
 
     usage_examples
+    quick_fault_detection
     configuration
-    logging
+    sequence_models
+    arcana
     The EnergyFaultDetector package <modules>
+    logging
 
 Module index
 ==================

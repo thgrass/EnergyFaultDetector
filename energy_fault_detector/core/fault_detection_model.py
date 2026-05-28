@@ -3,6 +3,7 @@
 import os
 from abc import ABC, abstractmethod
 from typing import Optional, Union, List, Tuple, TYPE_CHECKING
+import warnings
 import logging
 from datetime import datetime
 from pathlib import Path
@@ -33,6 +34,7 @@ DataType = Union[pd.DataFrame, np.ndarray, List]
 PathLike = Union[str, Path]
 ModelPart = Union[DataPreprocessor, "Autoencoder", AnomalyScore, ThresholdSelector]
 
+_MODEL_EXTENSIONS = ('.pkl', '.attrs', '.model', '.encoder')
 
 class NoTrainingData(Exception):
     """Raised when no training data is available."""
@@ -54,6 +56,8 @@ class FaultDetectionModel(ABC):
         save_timestamps: a list of string timestamps, indicating when the model was saved.
     """
 
+    # TODO: can config be None? We have FaultDetector(Config) for new models and FaultDetector.load(model_path) for
+    #  loading models. Why do we allow config=None?
     def __init__(self, config: Optional[Config] = None, model_directory: PathLike = 'models'):
         self.config: Optional[Config] = config
         self.model_directory: PathLike = model_directory
@@ -69,10 +73,7 @@ class FaultDetectionModel(ABC):
 
         # build models
         self._model_factory: Optional[ModelFactory] = ModelFactory(config) if config else None
-        if config is None:
-            logger.debug('No configuration set. Load models and config from path with the `FaultDetector.load_models`'
-                         ' method.')
-        else:
+        if config:
             self._init_models()
 
     def _init_models(self):
@@ -144,13 +145,19 @@ class FaultDetectionModel(ABC):
 
         data_splitter_params = self.config.data_split_params
 
+        # Normalize aliases
         data_splitter_type = data_splitter_params.get('type')
-        if (data_splitter_type is None) or (data_splitter_type in ['DataSplitter', 'BlockDataSplitter', 'blocks']):
+        if data_splitter_type in ('sklearn', 'train_test_split', 'train_val_split'):
+            splitter_kind = 'sklearn'
+        else:
+            splitter_kind = 'blocks'
+
+        if splitter_kind == 'blocks':
             train_data, val_data = BlockDataSplitter(
                 train_block_size=data_splitter_params.get('train_block_size'),
                 val_block_size=data_splitter_params.get('val_block_size'),
             ).split(x=x)
-        else:  # 'sklearn', 'train_test_split'
+        else:  # 'sklearn'
             shuffle = data_splitter_params.get('shuffle')
             train_data, val_data = train_test_split(
                 x,
@@ -195,7 +202,38 @@ class FaultDetectionModel(ABC):
 
         return os.path.abspath(model_dir), current_datetime
 
+    def save(self, model_name: Union[str, int] = None, overwrite: bool = False) -> Tuple[str, str]:
+        """Save this model instance to disk.
+
+        Preferred public API; wraps `save_models`.
+        """
+        return self.save_models(model_name=model_name, overwrite=overwrite)
+
+    @classmethod
+    def load(cls, model_path: PathLike) -> "FaultDetectionModel":
+        """Create an instance and load saved models from the given path.
+
+        Usage:
+            model = FaultDetector.load("/path/to/model_dir")
+        """
+        model_path = Path(model_path)
+        instance = cls(config=None, model_directory=model_path)
+
+        instance._load_from_path(model_path)
+        return instance
+
     def load_models(self, model_path: PathLike) -> None:
+        """Deprecated: use `ClassName.load(model_path)` instead."""
+        warnings.warn(
+            f"{self.__class__.__name__}.load_models(...) is deprecated; "
+            f"use {self.__class__.__name__}.load(model_path) instead. "
+            "This method will be removed in a future version.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self._load_from_path(model_path)
+
+    def _load_from_path(self, model_path: PathLike) -> None:
         """Load saved models given the model path.
 
         Args:
@@ -219,15 +257,17 @@ class FaultDetectionModel(ABC):
             model_type='anomaly_score',
             model_directory=os.path.join(model_path, SCORE_DIR)
         )
-        # for backwards compatibility - check whether config was saved:
-        if os.path.exists(os.path.join(model_path, 'config.yaml')):
-            self.config = Config(os.path.join(model_path, 'config.yaml'))
-            self._model_factory = ModelFactory(self.config)
+        self.config = Config(os.path.join(model_path, 'config.yaml'))
 
     @staticmethod
     def _load_pickled_model(model_type: str, model_directory: str) -> ModelPart:
         """Load a pickled model of given type, using file name (which is the class name)."""
-        model_class_name = os.listdir(model_directory)[0].split('.')[0]
+        model_files = [model_file for model_file in os.listdir(model_directory)
+                       if any(model_file.endswith(extension) for extension in _MODEL_EXTENSIONS)]
+        if not model_files:
+            raise FileNotFoundError(f"No model files found in '{model_directory}'. "
+                                    f"Expected files with extensions: {_MODEL_EXTENSIONS}")
+        model_class_name = model_files[0].split('.')[0]
         if model_type != 'data_preprocessor':
             model_class = registry.get(model_type, model_class_name)
         else:

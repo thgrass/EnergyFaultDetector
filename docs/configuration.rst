@@ -12,7 +12,7 @@ Quick start: minimal configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 A minimal configuration that clips outliers, imputes missing values, and scales features:
 
-.. include:: basic_config.yaml
+.. include:: examples/basic_config.yaml
    :literal:
 
 This setup:
@@ -31,14 +31,89 @@ This setup:
   If not provided, default ARCANA parameters are used (see :py:obj:`ARCANA docs <energy_fault_detector.root_cause_analysis.arcana.Arcana>`).
 
 If you leave out the data_preprocessor configuration (i.e., ``data_preprocessor: {}``), a default preprocessing pipeline
-is generated, which drops constant features, features where >5% of the data is missing, imputes remaining missing values
-with the mean value and scales the data to zero mean and unit standard deviation.
+is generated, which drops constant and binary features, features where >5% of the data is missing, imputes remaining
+missing values with the mean value and scales the data to zero mean and unit standard deviation.
+
+You can also generate this kind of configuration programmatically using
+:func:`generate_quickstart_config <energy_fault_detector.config.quickstart_config.generate_quickstart_config>`:
+
+.. code-block:: python
+
+   from energy_fault_detector.config.quickstart_config import generate_quickstart_config
+   # generate a Config instance and save as YAML to base_config.yaml
+   config = generate_quickstart_config(output_path="base_config.yaml")
+
+You can look up the names for the available model classes in the class registry:
+
+.. code-block:: python
+
+    from energy_fault_detector import registry
+
+    registry.print_available_classes()
+
+Configuration updates
+^^^^^^^^^^^^^^^^^^^^^
+
+To update the configuration 'on the fly' (for example for hyperparameter optimization), you provide a new
+configuration dictionary via the :py:obj:`Config.update_config <energy_fault_detector.config.config.Config.update_config>` method:
+
+.. code-block:: python
+
+  from energy_fault_detector.config import Config
+  from copy import deepcopy
+
+  config = Config('configs/base_config.yaml')
+
+  # update some parameters:
+  new_config_dict = deepcopy(config.config_dict)
+  new_config_dict['train']['anomaly_score']['name'] = 'mahalanobis'
+  config = Config(new_config_dict)
+
+  # or create a new configuration object and model
+  new_model = FaultDetector(Config(config_dict=new_config_dict))
+
+You can also generate this kind of configuration programmatically using
+:func:`generate_quickstart_config <energy_fault_detector.config.quickstart_config.generate_quickstart_config>`:
+
+.. code-block:: python
+
+   from energy_fault_detector.config.quickstart_config import generate_quickstart_config
+   generate_quickstart_config(output_path="base_config.yaml")
+
+You can look up the names for the available model classes in the class registry:
+
+.. code-block:: python
+
+    from energy_fault_detector import registry
+
+    registry.print_available_classes()
+
+Configuration updates
+^^^^^^^^^^^^^^^^^^^^^
+
+To update the configuration 'on the fly' (for example for hyperparameter optimization), you provide a new
+configuration dictionary via the :py:obj:`Config.update_config <energy_fault_detector.config.config.Config.update_config>` method:
+
+.. code-block:: python
+
+  from energy_fault_detector.config import Config
+  from copy import deepcopy
+
+  config = Config('configs/base_config.yaml')
+
+  # update some parameters:
+  new_config_dict = deepcopy(config.config_dict)
+  new_config_dict['train']['anomaly_score']['name'] = 'mahalanobis'
+  config.update_config(new_config_dict)
+
+  # or create a new configuration object and model
+  new_model = FaultDetector(Config(config_dict=new_config_dict))
 
 Detailed configuration
 ^^^^^^^^^^^^^^^^^^^^^^
 Below is a more thorough configuration. It shows how to specify preprocessing steps and more model parameters.
 
-.. include:: advanced_config.yaml
+.. include:: examples/advanced_config.yaml
    :literal:
 
 DataPreprocessor specification
@@ -64,6 +139,8 @@ Allowed step names and aliases:
 +-------------------------+-----------------------------------------------+------------------------------------------------+
 | counter_diff_transformer| Convert counters to differences/rates         | counter_diff, counter_diff_transform           |
 +-------------------------+-----------------------------------------------+------------------------------------------------+
+| timestamp_transformer   | Extract time features (hour, day, etc.)       | timestamp_transform,timestamp_features         |
++-------------------------+-----------------------------------------------+------------------------------------------------+
 | simple_imputer          | Impute missing values                         | imputer                                        |
 +-------------------------+-----------------------------------------------+------------------------------------------------+
 | standard_scaler         | Standardize features (z-score)                | standardize, standardscaler, standard          |
@@ -75,6 +152,32 @@ Allowed step names and aliases:
 
 For detailed documentation of the data preprocessor pipeline, refer to the
 :py:obj:`DataPreprocessor <energy_fault_detector.data_preprocessing.data_preprocessor.DataPreprocessor>` docs.
+
+**Multi-device data (MultiIndex support)**
+
+Both ``counter_diff_transformer`` and ``timestamp_transformer`` support multi-device data via pandas MultiIndex.
+By default (``groupby_level='auto'``), they automatically detect and group by non-datetime index levels:
+
+.. code-block:: yaml
+
+    train:
+      data_preprocessor:
+        steps:
+          - name: counter_diff_transformer
+            params:
+              counters: ['energy_total']
+              compute_rate: true
+              groupby_level: 'auto'  # Default: auto-detects device_id from (device_id, timestamp)
+          - name: timestamp_transformer
+            params:
+              features: ['hour_of_day', 'day_of_week']
+              groupby_level: 'auto'  # Default: auto-detects device_id
+
+For a MultiIndex like ``(device_id, timestamp)``, this automatically computes counter diffs and time features
+per device. You can also specify the level explicitly: ``groupby_level: 'device_id'`` or ``groupby_level: 0``.
+Set ``groupby_level: null`` to disable grouping for single-device data with a simple DatetimeIndex.
+
+Please note that the sequence-based autoencoders do not (yet) support MultiIndex data.
 
 Other training configuration sections
 """""""""""""""""""""""""""""""""""""
@@ -93,17 +196,24 @@ Other training configuration sections
     valid ``validation_split`` in (0, 1), or use :py:obj:`BlockDataSplitter <energy_fault_detector.data_splitting.data_splitter.BlockDataSplitter>`
     with a positive ``val_block_size``.
 
+.. note::
+   **MultiIndex / multi-device data:** When using MultiIndex data ``(device_id, timestamp)`` with
+   ``shuffle: false``, the validation split is taken positionally from the end of the
+   sorted data — which may contain only one device. Set ``shuffle: true`` to ensure
+   both devices appear in the validation set, leading to more representative early
+   stopping and validation metrics.
 
 - Autoencoder (``train.autoencoder``):
 
   - ``name``: class name in the registry.
   - ``params``: architecture and training args (e.g., ``layers``, ``epochs``, ``learning_rate``, ``early_stopping``).
-    Refer to the autoencoder class docs (:py:obj:`autoencoders <energy_fault_detector.autoencoders>`) for specific params and their defaults.
+    See (:py:obj:`autoencoders <energy_fault_detector.autoencoders>`) for specific params and their defaults.
 
 - Anomaly score (``train.anomaly_score``):
 
   - ``name``: score name (e.g., ``rmse``, ``mahalanobis``).
-  - ``params``: score-specific parameters. Refer to the :py:obj:`anomaly_scores <energy_fault_detector.anomaly_scores>` docs.
+  - ``params``: score-specific parameters.
+    See :py:obj:`anomaly_scores <energy_fault_detector.anomaly_scores>` docs.
 
 - Threshold selector (``train.threshold_selector``):
 
@@ -124,13 +234,3 @@ Root cause analysis (ARCANA)
 If ``root_cause_analysis`` is provided, ARCANA will attempt to attribute anomalies to specific features using the
 provided settings. If not provided, default settings are used. For detailed documentation refer to
 :py:obj:`ARCANA docs <energy_fault_detector.root_cause_analysis.arcana.Arcana>`.
-
-
-Old params data preprocessing configuration (for older versions)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Older configurations use params under ``train.data_preprocessor.params``.
-These remain supported but are deprecated in favor of steps mode.
-When both ``steps`` and legacy params are present, ``steps`` take precedence and legacy params are ignored with a warning.
-
-.. include:: old_config.yaml
-   :literal:

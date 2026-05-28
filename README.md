@@ -23,9 +23,9 @@ predictive maintenance of renewable energy assets.
 
 ## Main Features
 - **User-friendly interface**: Easy to use and quick to demo using the [command line interface](#Quick-fault-detection).
-- **Data Preprocessing Module**: Prepares numerical operational data for analysis with the `EnergyFaultDetector`, 
+- **Data Preprocessing Module**: Prepares numerical operational data for analysis with the `EnergyFaultDetector`,
   with many options such as data clipping, imputation, signal hangers and column selection based on variance and
-  missing values. 
+  missing values.
 - **Fault Detection**: Uses autoencoder architectures to model normal operational behavior and identify deviations.
 - **Root Cause Analysis**: Pinpoints the specific sensor values responsible for detected anomalies using [ARCANA](https://doi.org/10.1016/j.egyai.2021.100065).
 - **Scalability**: Algorithms can easily be adapted to various datasets and trained models can be transferred to and
@@ -54,19 +54,28 @@ For more information, have a look at the notebook [Quick Fault Detection](./note
 from energy_fault_detector import FaultDetector, Config
 from energy_fault_detector.config import generate_quickstart_config
 
-# 1) Generate and save a base config (YAML)
-generate_quickstart_config(output_path="base_config.yaml")
+# 1) Generate a basic config
+config = generate_quickstart_config()
+
 # 2) Train and predict using the generated config
-fault_detector = FaultDetector(config=Config('base_config.yaml'))
-model_data = fault_detector.train(sensor_data=sensor_data, normal_index=normal_index)
+fault_detector = FaultDetector(config=config)
+fault_detector.fit(sensor_data=sensor_data, normal_index=normal_index)
 results = fault_detector.predict(sensor_data=test_sensor_data)
 ```
 
-The pandas `DataFrame` `sensor_data` contains the operational data in wide format with the timestamp as index, the
-pandas `Series` `normal_index` indicates which timestamps are considered 'normal' operation and can be used to create
-a normal behaviour model. The [`base_config.yaml`](energy_fault_detector/base_config.yaml) file contains the model 
-settings, an example is found [here](energy_fault_detector/base_config.yaml).
+The pandas `DataFrame` `sensor_data` contains the operational data in wide format with a time index (typically a
+timestamp, or a MultiIndex such as `(asset_id, timestamp)`), and the pandas `Series` `normal_index` indicates which
+timestamps are considered 'normal' operation and can be used to create a normal behaviour model.
 
+`generate_quickstart_config()` returns a default configuration. For more control, you can provide your own YAML config.
+See [`base_config.yaml`](energy_fault_detector/base_config.yaml) for an example.
+
+You can load a saved model from a directory using:
+```python
+from energy_fault_detector import FaultDetector
+
+fault_detector = FaultDetector.load('path_to_model')
+```
 
 ## Background
 This project was initially developed by the research team AEFDI at the Fraunhofer IEE in the research project ADWENTURE (funded by the German Federal Ministry for Economic Affairs and Climate Action (BMWK)), 
@@ -81,18 +90,21 @@ Contributions are welcome! Please feel free to open issues or submit pull reques
 All contributions, bug reports, bug fixes, documentation improvements, enhancements, and ideas are welcome.
 
 ### Planned updates and features
-1. More autoencoder types:
-   1. Variational autoencoders
-   2. CNN- and LSTM-based autoencoders with time-series support.
 
-2. Unification, standardisation and generic improvements
-   1. Additional options for all autoencoders (e.g. drop out, regularization)
-   2. Data preparation (e.g. extend imputation strategies).
-   3. No or low configuration need (e.g. use defaults where possible).
-   4. Upgrade to Keras 3.0
+- Demo: Easy demo website
+- Extending the core models:
+   - Variational autoencoders
+   - Model ensembles
+- Unification, standardisation and generic improvements
+   - Data preparation (e.g. extend imputation strategies).
+   - No or low configuration need (e.g. use defaults where possible).
+   - Upgrade to Keras 3.0
+- Root cause analysis expansion
+   - integrate SHAP and possibly other xAI-methods.
+- Integrations
+   - logging/tracking to MLFlow for hyperparameter tuning and easy model deployment.
+   - Edge deployment
 
-3. Root cause analysis expansion
-   1. integrate SHAP and possibly other XAI-methods.
 
 ## License
 This project is licensed under the [MIT License](./LICENSE).

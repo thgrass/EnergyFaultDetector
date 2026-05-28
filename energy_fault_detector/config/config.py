@@ -1,12 +1,15 @@
 """Configuration object for anomaly detection"""
 
 import logging
+from pathlib import Path
 from typing import Dict, Optional, List, Callable, Any
+import warnings
 
 from energy_fault_detector.config.base_config import BaseConfig, InvalidConfigFile
 
 logger = logging.getLogger('energy_fault_detector')
 
+# TODO: Clearer error/validation messages
 # Consider pydantic or data classes instead of cerberus
 TRAIN_SCHEMA = {
     'anomaly_score': {
@@ -24,18 +27,13 @@ TRAIN_SCHEMA = {
             'name': {'type': 'string', 'required': True},
             'params': {'type': ['dict', 'list'], 'required': True},
             'verbose': {'type': 'integer', 'required': False},
-            'time_series_sampler': {
-                'type': 'dict',
-                'required': False,
-                'allow_unknown': True,
-            },
         }
     },
     'data_preprocessor': {
         'type': 'dict',
         'required': True,
         'allow_unknown': False,
-        'nullable': True,  # if not specfied, create default pipeline
+        'nullable': True,  # if not specified, create default pipeline
         'schema': {
             'params': {'type': 'dict', 'required': False, 'nullable': True,},
             'steps': {
@@ -71,10 +69,10 @@ TRAIN_SCHEMA = {
         'required': False,  # defaults if not specified
         'schema': {
             'type': {'type': 'string', 'required': False, 'default': 'BlockDataSplitter',
-                     'allowed': ['DataSplitter', 'BlockDataSplitter', 'blocks', 'sklearn', 'train_test_split']},
+                     'allowed': ['DataSplitter', 'BlockDataSplitter', 'blocks', 'sklearn', 'train_test_split', 'train_val_split']},
             'train_block_size': {'type': 'integer', 'required': False, 'dependencies': {'type': ['DataSplitter', 'BlockDataSplitter', 'blocks']}},
             'val_block_size': {'type': 'integer', 'required': False, 'dependencies': {'type': ['DataSplitter', 'BlockDataSplitter', 'blocks']}},
-            'validation_split': {'type': 'float', 'required': False, 'dependencies': {'type': ['sklearn', 'train_test_split']}},
+            'validation_split': {'type': 'float', 'required': False, 'dependencies': {'type': ['sklearn', 'train_test_split', 'train_val_split']}},
             'shuffle': {'type': 'boolean', 'required': False, 'dependencies': {'type': ['sklearn', 'train_test_split']}},
         }
     },
@@ -86,6 +84,7 @@ ROOT_CAUSE_ANALYSIS_SCHEMA = {
     'num_iter': {'type': 'integer', 'required': False},
     'epsilon': {'type': 'float', 'required': False},
     'verbose': {'type': 'boolean', 'required': False},
+    'max_sample_threshold': {'type': 'integer', 'required': False},
 }
 
 PREDICT_SCHEMA = {
@@ -126,44 +125,107 @@ def _validate_early_stopping(config_dict: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _parse_timedelta(config_dict: Dict[str, Any]) -> Dict[str, Any]:
-    """Parse timedelta string representation to numpy timedelta."""
+    """Parse sequence_builder.ts_freq from a compact string (e.g. '10m') to np.timedelta64.
 
-    ts_freq = config_dict.get('train', {}).get('autoencoder', {}).get('time_series_sampler', {}).get('ts_freq')
-    if ts_freq is not None:
-        if isinstance(ts_freq, str):
-            if (ts_freq.startswith('np.timedelta64(')
-                    or ts_freq.startswith('numpy.timedelta64(')) and ts_freq.endswith(')'):
-                import numpy  # needed for eval(ts_freq) in case ts_freq.startswith('numpy.timedelta64('))
-                import numpy as np  # needed for eval(ts_freq) in case ts_freq.startswith('np.timedelta64(')
-                config_dict['train']['autoencoder']['time_series_sampler']['ts_freq'] = eval(ts_freq)
-            else:
-                raise ValueError('Unexpected value for `ts_freq` (time_series_sampler params)')
+    Expects `ts_freq` under: train.autoencoder.params.sequence_builder.ts_freq
+    and supports strings like '10m', '1h', '30s'.
+    """
+    UNIT_MAP = {"min": "m", "sec": "s", "hr": "h", "hour": "h"}
+
+    train_cfg = config_dict.get("train", {})
+    ae_cfg = train_cfg.get("autoencoder", {}) or {}
+    params_cfg = ae_cfg.get("params", {}) or {}
+    seq_builder_cfg = params_cfg.get("sequence_builder", {}) or {}
+    ts_freq = seq_builder_cfg.get("ts_freq")
+
+    if isinstance(ts_freq, str):
+        # Parse '10m', '1h', etc.
+        digits = "".join(ch for ch in ts_freq if ch.isdigit())
+        unit = "".join(ch for ch in ts_freq if not ch.isdigit())
+        unit = UNIT_MAP.get(unit, unit)
+        if not digits or not unit:
+            raise ValueError(f"Unexpected value for `ts_freq`: {ts_freq!r}. Expected format like '10m', '1h'.")
+        import numpy as np  # noqa: F401
+        value = int(digits)
+        seq_builder_cfg["ts_freq"] = np.timedelta64(value, unit)
+        params_cfg["sequence_builder"] = seq_builder_cfg
+        ae_cfg["params"] = params_cfg
+        train_cfg["autoencoder"] = ae_cfg
+        config_dict["train"] = train_cfg
+
+    return config_dict
+
+
+def _validate_sequence_fit_on_val(config_dict: Dict[str, Any]) -> Dict[str, Any]:
+    """Warn if fit_on_val=True with a sequence model and shuffle=True."""
+
+    train_cfg = config_dict.get("train", {})
+    has_sequence_builder = "sequence_builder" in (
+        train_cfg.get("autoencoder", {}).get("params", {}) or {}
+    )
+    fit_on_val = train_cfg.get("threshold_selector", {}).get("fit_on_val", False)
+    shuffle = train_cfg.get("data_splitter", {}).get("shuffle", False)
+
+    if has_sequence_builder and fit_on_val and shuffle:
+        import warnings
+        warnings.warn(
+            "Using 'fit_on_val=True' with a sequence model and 'shuffle=True' may result in "
+            "non-contiguous validation timestamps. The sequence builder will drop windows that "
+            "cross data gaps, potentially leaving no valid windows for threshold fitting. "
+            "Consider setting 'shuffle: false' or 'fit_on_val: false'.",
+            UserWarning,
+            stacklevel=2,
+        )
+
     return config_dict
 
 
 class Config(BaseConfig):
     """Configuration class. Either config_filename or config_dict must be provided.
-    Reads a yaml files with the anomaly detection configuration and sets corresponding settings.
+    Reads a yaml file with the anomaly detection configuration and sets corresponding settings.
     """
 
-    def __init__(self, config_filename: str = None, config_dict: Dict[str, Any] = None):
-
-        # backwards compatibility
-        if config_filename is None:
-            if 'data' in config_dict:
-                config_dict.pop('data')
-
+    def __init__(self, config_filename: str | Path = None, config_dict: Dict[str, Any] = None):
         super().__init__(config_filename=config_filename, config_dict=config_dict)
         self._schema = CONFIG_SCHEMA
         self._extra_validation_checks: List[Callable[[Dict], Dict]] = [_parse_timedelta,
-                                                                       _validate_early_stopping]
+                                                                       _validate_early_stopping,
+                                                                       _validate_sequence_fit_on_val]
         self.read_config()
 
     def __getitem__(self, item) -> Any:
         return self.config_dict[item]
 
     def __contains__(self, item):
-        return item in self.config_dict.keys() or item == 'models'
+        return item in self.config_dict
+
+    @property
+    def data_preprocessor_steps(self) -> List[Dict[str, Any]]:
+        """Get the data preprocessor steps."""
+        data_prep = self.config_dict.get('train', {}).get('data_preprocessor', {}) or {}
+        params = data_prep.get('params') or {}
+        steps = data_prep.get('steps') or []
+
+        if steps and params:
+            warnings.warn(
+                "Both 'data_preprocessor.steps' and 'data_preprocessor.params' provided in config; "
+                "'data_preprocessor.steps' take precedence and 'data_preprocessor.params' are ignored. "
+                "Note: 'data_preprocessor.params' will be removed in a future version.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            return steps
+
+        if params and not steps:
+            warnings.warn(
+                "Using deprecated 'data_preprocessor.params' to create a DataPreprocessor. "
+                "Please update to 'steps'; 'data_preprocessor.params' will be removed in a future version.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            steps = _data_preprocessor_params_to_steps(params)
+
+        return steps or []
 
     @property
     def root_cause_analysis(self) -> bool:
@@ -201,11 +263,88 @@ class Config(BaseConfig):
         return self.config_dict.get('train', {}).get('threshold_selector', {}).get('fit_on_val', False)
 
     @property
-    def verbose(self) -> int:
-        """Verbosity Level of the Autoencoder."""
-        return self.config_dict.get('train', {}).get('autoencoder', {}).get('verbose', 1)
-
-    @property
     def dtype(self):
         """Data type, float32 by default."""
         return self.config_dict.get('dtype', 'float32')
+
+
+def _data_preprocessor_params_to_steps(params: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Translate old data_preprocessor params into a 'steps' specification.
+
+    Returns:
+        List of step-spec dicts to be passed to the DataPreprocessor, e.g.:
+        [
+            {"name": "duplicate_to_nan", "params": {...}},
+            {"name": "counter_diff_transformer", "params": {...}},
+            ...
+        ]
+    """
+
+    p = params or {}
+    steps: List[Dict[str, Any]] = []
+
+    # 0. DuplicateValuesToNan
+    if p.get("include_duplicate_value_to_nan", False):
+        steps.append({
+            "name": "duplicate_to_nan",
+            "params": {
+                "value_to_replace": p.get("value_to_replace", 0),
+                "n_max_duplicates": p.get("n_max_duplicates", 144),
+                "features_to_exclude": p.get("duplicate_features_to_exclude"),
+            },
+        })
+
+    # 1. CounterDiffTransformer
+    counter_cols = p.get("counter_columns_to_transform", []) or []
+    if counter_cols:
+        steps.append({
+            "name": "counter_diff_transformer",
+            "params": {
+                "counters": counter_cols,
+                "compute_rate": False,
+                "reset_strategy": "zero",
+            },
+        })
+
+    # 2. ColumnSelector
+    if p.get("include_column_selector", True):
+        steps.append({
+            "name": "column_selector",
+            "params": {
+                "max_nan_frac_per_col": p.get("max_nan_frac_per_col", 0.05),
+                "features_to_exclude": p.get("features_to_exclude"),
+            },
+        })
+
+    # 3. LowUniqueValueFilter
+    if p.get("include_low_unique_value_filter", True):
+        steps.append({
+            "name": "low_unique_value_filter",
+            "params": {
+                "min_unique_value_count": p.get("min_unique_value_count", 2),
+                "max_col_zero_frac": p.get("max_col_zero_frac", 1.0),
+            },
+        })
+
+    # 4. AngleTransformer
+    angles = p.get("angles", []) or []
+    if angles:
+        steps.append({
+            "name": "angle_transformer",
+            "params": {"angles": angles},
+        })
+
+    # 5. SimpleImputer
+    imputer_params: Dict[str, Any] = {"strategy": p.get("imputer_strategy", "mean")}
+    if imputer_params["strategy"] == "constant":
+        imputer_params["fill_value"] = p.get("imputer_fill_value", None)
+    steps.append({"name": "simple_imputer", "params": imputer_params})
+
+    # 6. Scaler
+    scale = p.get("scale", "standardize")
+    if scale in ["standardize", "standard", "standardscaler"]:
+        steps.append({"name": "standard_scaler", "step_name": "scaler"})
+    else:
+        steps.append({"name": "minmax_scaler", "step_name": "scaler"})
+
+    return steps

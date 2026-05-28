@@ -23,28 +23,37 @@ DataType = Union[np.ndarray, pd.DataFrame]
 logger = logging.getLogger("energy_fault_detector")
 
 
+# TODO: Extract dense-specific fit/predict/encode logic into a DenseAutoencoder subclass.
+#       Currently, Autoencoder contains both the ABC contract AND dense-specific implementations
+#       (2D input assumptions). MultilayerAutoencoder and ConditionalAE should inherit from
+#       DenseAutoencoder instead of Autoencoder directly.
 class Autoencoder(ABC, SaveLoadMixin):
     """Autoencoder template. Compatible with sklearn and keras/tensorflow.
 
     Args:
-        learning_rate: learning rate of the adam optimizer.
-        batch_size: number of samples per batch.
-        epochs: number of epochs to run.
-        loss_name: name of loss metric to use.
-        metrics: list of additional metrics to track.
-        decay_rate: learning rate decay. Optional. If not defined, a fixed learning rate is used.
-        decay_steps: number of steps to decay learning rate over. Optional.
+        learning_rate: learning rate of the adam optimizer. Default: 0.001.
+        batch_size: number of samples per batch. Default: 128.
+        epochs: number of epochs to run. Default: 10.
+        loss_name: name of loss metric to use. Default: 'mean_squared_error'.
+        metrics: list of additional metrics to track. Default: ['mean_absolute_error'].
+        decay_rate: learning rate decay. Optional. If not defined, a fixed learning rate is used. Default: None.
+        decay_steps: number of steps to decay learning rate over. Optional. Default: None.
+            If not defined, a fixed learning rate is used.
         early_stopping: If True the early stopping callback will be used in the fit method. Early stopping will
             interrupt the training procedure before the last epoch is reached if the loss is not improving.
             The exact time of the interruption is based on the patience parameter.
+            Default: False.
         patience: parameter for early stopping. If early stopping is used the training will end if more than
-            patience epochs in a row have not shown an improved loss.
+            patience epochs in a row have not shown an improved loss. Default: 5.
         min_delta: parameter of the early stopping callback. If the losses of an epoch and the next epoch differ
-            by less than min_delta, they are considered equal (i.e. no improvement).
+            by less than min_delta, they are considered equal (i.e. no improvement). Default: 1e-4.
         noise: float value that determines the influence of the noise term on the training input. High values mean
             highly noisy input. 0 means no noise at all. If noise >0 is used validation metrics will not be
             affected by it. Thus training loss and validation loss can differ depending on the magnitude of noise.
+            Default: 0.0 (no noise).
         conditional_features: (optional) List of features to use as conditions for the conditional autoencoder.
+            Default: None (no conditional features).
+        verbose: verbosity mode - passed to KerasModel fit and predict methods. Default: 1.
 
 
     Attributes:
@@ -57,23 +66,20 @@ class Autoencoder(ABC, SaveLoadMixin):
 
     """
 
-    def __init__(
-        self,
-        learning_rate: float,
-        batch_size: int,
-        epochs: int,
-        loss_name: str,
-        metrics: List[str],
-        decay_rate: float,
-        decay_steps: float,
-        early_stopping: bool,
-        patience: int,
-        min_delta: float,
-        noise: float,
-        conditional_features: Optional[List[str]] = None,
-        **kwargs,
-    ):
+    def __init__(self,
+                 *,
+                 learning_rate: float = 0.001, batch_size: int = 128, epochs: int = 10,
+                 loss_name: str = 'mean_squared_error', metrics: List[str] = None,
+                 decay_rate: float = None, decay_steps: float = None,
+                 early_stopping: bool = False, patience: int = 5, min_delta: float = 1e-4,
+                 noise: float = 0.0,
+                 conditional_features: Optional[List[str]] = None,
+                 verbose: int = 1,
+                 **kwargs):
         super().__init__()
+
+        if kwargs:
+            logger.warning("Unknown Autoencoder kwargs ignored: %s", list(kwargs.keys()))
 
         self.learning_rate = (
             ExponentialDecay(
@@ -90,12 +96,14 @@ class Autoencoder(ABC, SaveLoadMixin):
 
         self.batch_size: int = batch_size
         self.epochs: int = epochs
-        self.loss_name: str = loss_name
-        self.metrics: List[str] = [] if metrics is None else metrics
+        self.loss_name: str = loss_name  # TODO: allow custom loss and metrics functions?
+        self.metrics: List[str] = ['mean_absolute_error'] if metrics is None else metrics
         self.noise: float = noise
+        self.verbose: int = verbose
 
         self.model: Optional[KerasModel] = None
         self.encoder: Optional[KerasModel] = None
+        self.decoder: Optional[KerasModel] = None
         self.history: Any = None
 
         self.callbacks: List[Callback] = (
@@ -111,11 +119,30 @@ class Autoencoder(ABC, SaveLoadMixin):
             else []
         )
 
-    def __call__(
-        self,
-        x: Union[np.ndarray, tf.Tensor],
-        conditions: Union[np.ndarray, tf.Tensor] = None,
-    ) -> tf.Tensor:
+    def __repr__(self) -> str:
+        cls = self.__class__.__name__
+        status = "built" if self.model is not None else "unbuilt"
+        params = {
+            "learning_rate": self.learning_rate,
+            "batch_size": self.batch_size,
+            "epochs": self.epochs,
+            "loss_name": self.loss_name,
+            "metrics": self.metrics,
+            "noise": self.noise,
+            "conditional_features": self.conditional_features,
+        }
+        # Keep it compact
+        param_str = ", ".join(f"{k}={v!r}" for k, v in params.items())
+        return f"{cls}({param_str}, model={status})"
+
+    def summary(self, **kwargs) -> None:
+        """Print a Keras summary of the underlying model, if built."""
+        if self.model is None:
+            print(f"{self.__class__.__name__}: model is not built yet.")
+        else:
+            self.model.summary(**kwargs)
+
+    def __call__(self, x: Union[np.ndarray, tf.Tensor], conditions: Union[np.ndarray, tf.Tensor] = None) -> tf.Tensor:
         """Calls the model on new inputs."""
         if self.is_conditional:
             if conditions is None:
@@ -127,8 +154,15 @@ class Autoencoder(ABC, SaveLoadMixin):
 
         return self.model(x)
 
+    @property
+    def epochs_completed(self) -> int:
+        if self.history is None:
+            return 0
+        return len(self.history.get('loss', []))
+
     @abstractmethod
-    def create_model(self, input_dimension: Union[int, Tuple], **kwargs) -> KerasModel:
+    def create_model(self, input_dimension: Union[int, Tuple], condition_dimension: Optional[int] = None, **kwargs
+                     ) -> KerasModel:
         """Create a keras model, sets the model and (optionally) encoder attributes.
 
         Args:
@@ -164,12 +198,8 @@ class Autoencoder(ABC, SaveLoadMixin):
             Fitted model.
         """
 
-        if self.is_conditional and (
-            self.conditional_features is None or len(self.conditional_features) == 0
-        ):
-            raise ValueError(
-                "A list of conditional features must be provided for conditional autoencoders!"
-            )
+        if self.is_conditional and (self.conditional_features is None or len(self.conditional_features) == 0):
+            raise ValueError('A list of conditional features must be provided for conditional autoencoders!')
 
         if self.model is None:
             self.create_model(
@@ -183,23 +213,17 @@ class Autoencoder(ABC, SaveLoadMixin):
 
         self.compile_model()
 
-        if "callbacks" in kwargs:
-            self.callbacks += kwargs["callbacks"]
-            kwargs.pop("callbacks")
+        callbacks = list(self.callbacks)  # copy to ensure we do not mutate the instance state
+        if 'callbacks' in kwargs:
+            callbacks += kwargs.pop('callbacks')
 
-        self._fit_model(
-            x, x_val, epochs=self.epochs, callbacks=self.callbacks, **kwargs
-        )
+        # ensure verbose default
+        kwargs.setdefault("verbose", self.verbose)
+
+        self._fit_internal(x, x_val, epochs=self.epochs, callbacks=self.callbacks, **kwargs)
         return self
 
-    def _fit_model(
-        self,
-        x: DataType,
-        x_val: DataType,
-        epochs: int,
-        callbacks: List[Callback],
-        **kwargs,
-    ) -> None:
+    def _fit_internal(self, x: DataType, x_val: DataType, epochs: int, callbacks: List[Callback], **kwargs) -> None:
         """Fit the keras model on provided training data.
 
         Args:
@@ -257,13 +281,13 @@ class Autoencoder(ABC, SaveLoadMixin):
         """
 
         self.compile_model(learning_rate)  # sets new learning rate
-        self._fit_model(
-            x,
-            x_val,
-            epochs=tune_epochs + self.epochs,
+        kwargs.setdefault("verbose", self.verbose)
+        self._fit_internal(
+            x, x_val,
+            epochs=tune_epochs + self.epochs_completed,
             callbacks=self.callbacks,
-            initial_epoch=self.epochs,
-            **kwargs,
+            initial_epoch=self.epochs_completed,
+            **kwargs
         )
         return self
 
@@ -296,16 +320,11 @@ class Autoencoder(ABC, SaveLoadMixin):
             )
 
         self.encoder.trainable = False
-        self.tune(
-            x=x,
-            x_val=x_val,
-            learning_rate=learning_rate,
-            tune_epochs=tune_epochs,
-            **kwargs,
-        )
+        kwargs.setdefault("verbose", self.verbose)
+        self.tune(x=x, x_val=x_val, learning_rate=learning_rate, tune_epochs=tune_epochs, **kwargs)
         return self
 
-    def encode(self, x: DataType, conditions: DataType = None) -> np.ndarray:
+    def encode(self, x: DataType, conditions: DataType = None, **kwargs) -> np.ndarray:
         """Return latent representation using autoencoder."""
 
         if self.encoder is None:
@@ -314,14 +333,14 @@ class Autoencoder(ABC, SaveLoadMixin):
                 " attribute."
             )
 
+        kwargs.setdefault("verbose", self.verbose)
+
         if self.is_conditional:
             if conditions is None:
-                input_data, conditions, _, _ = split_inputs(
-                    self.conditional_features, x
-                )
-            return self.encoder.predict([input_data, conditions])
+                input_data, conditions, _, _ = split_inputs(self.conditional_features, x)
+            return self.encoder.predict([input_data, conditions], **kwargs)
 
-        return self.encoder.predict(x)
+        return self.encoder.predict(x, **kwargs)
 
     def predict(self, x: DataType, **kwargs) -> DataType:
         """Predict values using fitted model.
@@ -333,6 +352,7 @@ class Autoencoder(ABC, SaveLoadMixin):
         if not self._is_fitted():
             raise ValueError(f"{self.__class__} object needs to be fitted first!")
 
+        kwargs.setdefault("verbose", self.verbose)
         return self._predict(x, **kwargs)
 
     def _predict(
@@ -367,23 +387,23 @@ class Autoencoder(ABC, SaveLoadMixin):
 
         return prediction_df
 
-    def get_reconstruction_error(self, x: DataType, **kwargs) -> DataType:
+    def get_reconstruction_error(self, x: DataType, reconstruction: DataType = None, **kwargs) -> DataType:
         """Get the reconstruction error: output - input.
 
         Args:
             x: input data
+            reconstruction: pre-computed reconstruction. If None, predict() is called internally.
             kwargs: other keyword args for the keras `Model.predict` method.
 
         Returns:
             AE reconstruction error of the input data.
         """
 
-        x_predicted = self.predict(x, **kwargs)
+        x_predicted = reconstruction if reconstruction is not None else self.predict(x, **kwargs)
 
         if self.is_conditional:
-            prediction = x_predicted
             input_data, conditions, _, _ = split_inputs(self.conditional_features, x)
-            recon_error = prediction - input_data
+            recon_error = x_predicted - input_data
             if isinstance(x, pd.DataFrame):
                 recon_error = pd.DataFrame(
                     recon_error, index=input_data.index, columns=input_data.columns
@@ -412,11 +432,15 @@ class Autoencoder(ABC, SaveLoadMixin):
         if self.encoder is not None:
             self.encoder.save(file_path + ".encoder.keras")
 
+        if self.decoder is not None:
+            self.decoder.save(file_path + '.decoder.keras')
+
         ae_dict = self.__dict__.copy()
-        ae_dict["model"] = None
-        ae_dict["encoder"] = None
-        file_name = file_path + ".attrs"
-        with open(file_name, "wb") as f:
+        ae_dict['model'] = None
+        ae_dict['encoder'] = None
+        ae_dict['decoder'] = None
+        file_name = file_path + '.attrs'
+        with open(file_name, 'wb') as f:
             f.write(pickle.dumps(ae_dict))
 
     def load(self, directory: str, **kwargs) -> "Autoencoder":  # pylint: disable=W0221,W0613
@@ -434,8 +458,9 @@ class Autoencoder(ABC, SaveLoadMixin):
         # Priority order for file extensions: .model.keras (new) > .model (old)
         model_extensions = [".model.keras", ".model"]
         encoder_extensions = [".encoder.keras", ".encoder"]
+        decoder_extensions = [".decoder.keras", ".decoder"]
 
-        # Try to load model with fallback to older extensions
+        # Try to load AE model
         model_loaded = False
         for ext in model_extensions:
             model_path = file_name + ext
@@ -444,7 +469,7 @@ class Autoencoder(ABC, SaveLoadMixin):
                 model_loaded = True
                 break
 
-        # Try to load encoder with fallback to older extensions
+        # Try to load encoder
         encoder_loaded = False
         for ext in encoder_extensions:
             encoder_path = file_name + ext
@@ -452,10 +477,24 @@ class Autoencoder(ABC, SaveLoadMixin):
                 self.encoder = load_keras_model(encoder_path)
                 encoder_loaded = True
                 break
+        
+        
+        # Try to load decoder
+        decoder_loaded = False
+        for ext in decoder_extensions:
+            decoder_path = file_name + ext
+            if os.path.exists(decoder_path):
+                self.encoder = load_keras_model(decoder_path)
+                decoder_loaded = True
+                break
 
-        if not model_loaded and not encoder_loaded:
-            warnings.warn("No fitted model was found.")
-
+        if not model_loaded:
+            warnings.warn("No fitted autoencoder model was found.")
+        if not encoder_loaded:
+            warnings.warn("No fitted encoder model was found.")
+        if not decoder_loaded:
+            warnings.warn("No fitted decoder model was found.")
+            
         return self
 
     def _is_fitted(self) -> bool:
