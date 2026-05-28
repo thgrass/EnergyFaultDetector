@@ -458,8 +458,9 @@ class Autoencoder(ABC, SaveLoadMixin):
         # Priority order for file extensions: .model.keras (new) > .model (old)
         model_extensions = [".model.keras", ".model"]
         encoder_extensions = [".encoder.keras", ".encoder"]
+        decoder_extensions = [".decoder.keras", ".decoder"]
 
-        # Try to load model with fallback to older extensions
+        # Try to load AE model
         model_loaded = False
         for ext in model_extensions:
             model_path = file_name + ext
@@ -468,7 +469,7 @@ class Autoencoder(ABC, SaveLoadMixin):
                 model_loaded = True
                 break
 
-        # Try to load encoder with fallback to older extensions
+        # Try to load encoder
         encoder_loaded = False
         for ext in encoder_extensions:
             encoder_path = file_name + ext
@@ -477,8 +478,21 @@ class Autoencoder(ABC, SaveLoadMixin):
                 encoder_loaded = True
                 break
 
-        if not model_loaded and not encoder_loaded:
-            warnings.warn("No fitted model was found.")
+        # Try to load decoder
+        decoder_loaded = False
+        for ext in decoder_extensions:
+            decoder_path = file_name + ext
+            if os.path.exists(decoder_path):
+                self.encoder = load_keras_model(decoder_path)
+                decoder_loaded = True
+                break
+
+        if not model_loaded:
+            warnings.warn("No fitted autoencoder model was found.")
+        if not encoder_loaded:
+            warnings.warn("No fitted encoder model was found.")
+        if not decoder_loaded:
+            warnings.warn("No fitted decoder model was found.")
 
         return self
 
