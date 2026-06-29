@@ -3,7 +3,6 @@
 import logging
 from typing import Optional, Tuple, List
 from datetime import datetime
-import warnings
 from pathlib import Path
 
 import pandas as pd
@@ -14,6 +13,7 @@ from energy_fault_detector.core.fault_detection_result import FaultDetectionResu
 from energy_fault_detector.data_preprocessing.data_preprocessor import DataPreprocessor
 from energy_fault_detector.data_preprocessing.data_clipper import DataClipper
 from energy_fault_detector.config import Config
+from energy_fault_detector.threshold_selectors import FbetaSelector, FDRSelector, AdaptiveThresholdSelector
 
 logger = logging.getLogger('energy_fault_detector')
 
@@ -25,8 +25,6 @@ class FaultDetector(FaultDetectionModel):
         config (Optional[Config]):  Config object with fault detection configuration. Defaults to None.
             If None, the models need to be loaded from a path using the `load_models` method.
         model_directory (str, optional): Directory to save models to. Defaults to 'fault_detector_model'.
-        model_subdir (Optional[Any], optional): Deprecated. This argument will be removed in future versions.
-            Defaults to None.
 
     Attributes:
         anomaly_score: AnomalyScore object.
@@ -36,61 +34,52 @@ class FaultDetector(FaultDetectionModel):
         save_timestamps: a list of string timestamps indicating when the model was saved.
     """
 
-    def __init__(self, config: Optional[Config] = None, model_directory: str | Path = 'fault_detector_model',
-                 model_subdir: Optional[str] = None):
-        if model_subdir is not None:
-            warnings.warn(
-                '`model_subdir`is deprecated and will be removed in future versions. '
-                'Please append the subdirectory to the `model_directory` argument if you need a complex path.',
-                DeprecationWarning,
-                stacklevel=2
-            )
-
+    def __init__(self, config: Optional[Config] = None, model_directory: str | Path = 'fault_detector_model'):
         super().__init__(config=config, model_directory=model_directory)
 
     def preprocess_train_data(self, sensor_data: pd.DataFrame, normal_index: pd.Series, fit_preprocessor: bool = True
                               ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series]:
-        """ Preprocesses the training data using the configured data_preprocessor
-
-        Args:
-            sensor_data (pd.DataFrame): unprocessed training data
-            normal_index (pd.Series): unprocessed normal index
-            fit_preprocessor (bool, optional): if True the preprocessor is fitted. If False the preprocessor is not
-                fitted and the user has to provide a ready-to-use preprocessor by loading models before calling this
-                function.
-
-        Returns: tuple of (pd.Dataframe, pd.Dataframe, pd.Series)
-            x_prepped (pd.DataFrame): preprocessed normal training data
-            x: ordered training data (unprocessed)  # needed for _fit_threshold
-            y: ordered normal_index (unprocessed)  # needed for _fit_threshold
-
-        """
+        """Preprocesses the training data using the configured data_preprocessor."""
 
         x = sensor_data.sort_index()
         if normal_index is not None:
             y = normal_index.sort_index()
         else:
-            # assume only 'normal behaviour' in x
             y = pd.Series(np.full(len(x), True), index=x.index)
 
         if not x.loc[x.index.duplicated()].empty or not y.loc[y.index.duplicated()].empty:
             raise ValueError('There are duplicated indices in the input dataframe `sensor_data` and/or in the '
                              '`normal_index`, please check your input data.')
 
+        # Determine which features to protect based on config flag
+        protect = self.config.protect_conditional_features if self.config else True
+        protected_features = (
+            self.autoencoder.conditional_features or []
+        ) if protect else []
+
         if self.config.data_clipping:
             logger.debug('Clip data before scaling.')
-            data_clipper = DataClipper(**self.config.data_clipping_params)
+            clipper_params = self.config.data_clipping_params.copy()
+            if protected_features:
+                existing_exclusions = clipper_params.get('features_to_exclude', [])
+                clipper_params['features_to_exclude'] = list(set(existing_exclusions + protected_features))
+                logger.debug(f'Excluding conditional features from clipping: {protected_features}')
+            data_clipper = DataClipper(**clipper_params)
             data_clipper.fit(x=x)
             x = data_clipper.transform(x)
 
-        x_normal = x[y]  # filter normal before data prep
+        x_normal = x[y.values]
         if fit_preprocessor:
             logger.info('Fit preprocessor pipeline.')
-            self.data_preprocessor.fit(x_normal)
+            fit_params = {}
+            for step_name in self.data_preprocessor.named_steps.keys():
+                if 'column_selector' in step_name or 'low_unique_value_filter' in step_name:
+                    fit_params[f'{step_name}__protected_features'] = protected_features
+            if protected_features:
+                fit_params['protected_features'] = protected_features
+            self.data_preprocessor.fit(x_normal, **fit_params)
 
         x_prepped = self.data_preprocessor.transform(x_normal)
-
-        # Use float32 by default for performance, unless specified otherwise in config
         x_prepped = x_prepped.astype(self.config.dtype)
 
         return x_prepped, x, y
@@ -98,52 +87,64 @@ class FaultDetector(FaultDetectionModel):
     def fit(self, sensor_data: pd.DataFrame, normal_index: pd.Series = None, save_models: bool = True,
             overwrite_models: bool = False, fit_autoencoder_only: bool = False, fit_preprocessor: bool = True,
             **kwargs) -> ModelMetadata:
-        """Fit models on the given sensor_data and save them locally and return the metadata.
-
-        Args:
-            sensor_data (pd.DataFrame): DataFrame with the sensor data of one asset for a specific time window.
-                The timestamp should be the index and the sensor values as columns.
-            normal_index (Optional[pd.Series]): Series indicating normal behavior as boolean with the timestamp as
-                index.
-                Optional; if not provided, assumes all sensor_data represents normal behavior.
-            save_models (bool, optional): Whether to save models. Defaults to True.
-            overwrite_models (bool, optional): If True, existing model directories can be overwritten. Defaults to
-                False.
-            fit_autoencoder_only (bool, optional): If True, only fit the data preprocessor and autoencoder objects.
-                Defaults to False.
-            fit_preprocessor (bool, optional): If True, the preprocessor is fitted. Defaults to True.
-
-        Returns:
-            ModelMetadata: metadata of the trained model: model_date, model_path, model reconstruction errors
-            of the training and validation data.
-        """
+        """Fit models on the given sensor_data and save them locally and return the metadata."""
 
         try:
-            from tensorflow.keras.backend import clear_session
+            from keras.backend import clear_session
         except ImportError:
             logger.warning('Could not import tensorflow.keras.backend.clear_session(). Please install tensorflow.')
             raise
 
+        if normal_index is None and isinstance(self.threshold_selector, (FbetaSelector, FDRSelector)):
+            raise ValueError("FbetaSelector/FDRSelector require a `normal_index` with both True and False values. "
+                             "If your data does not have labels, consider a different threshold selector, such as "
+                             "QuantileThresholdSelector or AdaptiveThresholdSelector.")
+
+        non_numeric = sensor_data.select_dtypes(exclude='number').columns.tolist()
+        if non_numeric:
+            raise ValueError(f"`sensor_data` must be numeric. Non-numeric columns: {non_numeric}")
+
         clear_session()
-        model_path = None  # default value (will be overwritten by self._save if the models are saved).
-        x_prepped, x, y = self.preprocess_train_data(sensor_data=sensor_data, normal_index=normal_index,
-                                                     fit_preprocessor=fit_preprocessor)
+
+        # --- Resolve conditional features against available data ---
+        self._resolve_conditional_features(sensor_data)
+
+        model_path = None
+        x_prepped, x, y = self.preprocess_train_data(
+            sensor_data=sensor_data, normal_index=normal_index, fit_preprocessor=fit_preprocessor
+        )
+
+        # Post-preprocessing check: conditionals may have been dropped
+        if not self.config.protect_conditional_features and self.autoencoder.is_conditional:
+            # Check if conditionals survived preprocessing
+            surviving = [
+                f for f in (self.autoencoder.conditional_features or [])
+                if f in x_prepped.columns
+            ]
+            dropped_by_pipeline = set(self.autoencoder.conditional_features or []) - set(surviving)
+            if dropped_by_pipeline:
+                logger.warning(f"Conditional features dropped by preprocessing pipeline: "
+                               f"{sorted(dropped_by_pipeline)}. Remaining: {surviving or 'none'}")
+                if surviving:
+                    self.autoencoder.conditional_features = surviving
+                else:
+                    self._fallback_if_no_conditionals()
+
         train_recon_error, val_recon_error = None, None
         x_train, x_val = self.train_val_split(x_prepped)
         logger.info('Train autoencoder.')
-        self.autoencoder.fit(x=x_train, x_val=x_val, verbose=self.config.verbose)
+        self.autoencoder.fit(x=x_train, x_val=x_val)
 
-        train_recon_error = self.autoencoder.get_reconstruction_error(x_train, verbose=self.config.verbose)
+        train_recon_error = self.autoencoder.get_reconstruction_error(x_train)
         if x_val is not None:
             if len(x_val) > 0:
-                val_recon_error = self.autoencoder.get_reconstruction_error(x_val, verbose=self.config.verbose)
+                val_recon_error = self.autoencoder.get_reconstruction_error(x_val)
 
         if not fit_autoencoder_only:
             self._fit_threshold(x=x, y=y, x_val=x_val, fit_on_validation=self.config.fit_threshold_on_val)
 
-        # save the models
         if save_models:
-            model_path, model_date = self.save_models(overwrite=overwrite_models)
+            model_path, model_date = self.save(overwrite=overwrite_models)
         else:
             model_date = datetime.now().strftime("%Y%m%d_%H%M%S")
         return ModelMetadata(
@@ -190,6 +191,9 @@ class FaultDetector(FaultDetectionModel):
             ModelMetadata: metadata of the trained model with model_date, model_path, model reconstruction errors
             of the training and validation data.
         """
+        if self.config is None:
+            raise ValueError("Cannot tune without a configuration. Load models using FaultDetector.load() "
+                             "or provide pretrained_model_path.")
 
         if tune_method not in ['threshold', 'decoder', 'full']:
             raise ValueError(f'Unknown tune method {tune_method}.')
@@ -200,18 +204,17 @@ class FaultDetector(FaultDetectionModel):
             self.config['train']['threshold_selector']['fit_on_val'] = False
 
         if pretrained_model_path is not None:
-            self.load_models(model_path=pretrained_model_path)
+            self._load_from_path(model_path=pretrained_model_path)
         else:
             if self.autoencoder is None:
                 raise ValueError('No models loaded and no pretrained_model_path provided!')
 
         try:
-            from tensorflow.keras.backend import clear_session
+            from keras.backend import clear_session
         except ImportError:
             logger.warning('Could not import tensorflow.keras.backend.clear_session(). Please install tensorflow.')
             raise
 
-        clear_session()
         x = sensor_data.sort_index()
         if normal_index is not None:
             y = normal_index.sort_index()
@@ -219,26 +222,27 @@ class FaultDetector(FaultDetectionModel):
             # assume only 'normal behaviour' in x
             y = pd.Series(np.full(len(x), True), index=x.index)
 
-        x_normal = x[y.values]  # use the boolean array, so it works for multi-index series/dataframes as well
+        fit_preprocessor = True
         if data_preprocessor is not None:
             self.data_preprocessor = data_preprocessor
+            fit_preprocessor = False
 
         train_recon_error = None
         val_recon_error = None
-        x_prepped = self.data_preprocessor.transform(x_normal)
+        x_prepped, x, y = self.preprocess_train_data(sensor_data=sensor_data, normal_index=normal_index,
+                                                     fit_preprocessor=fit_preprocessor)
         x_train, x_val = self.train_val_split(x_prepped)
         if tune_method != 'threshold':
             logger.info('Tune autoencoder.')
             if tune_method == 'full':
-                self.autoencoder.tune(x=x_train, x_val=x_val, learning_rate=new_learning_rate, tune_epochs=tune_epochs,
-                                      verbose=self.config.verbose)
+                self.autoencoder.tune(x=x_train, x_val=x_val, learning_rate=new_learning_rate, tune_epochs=tune_epochs)
             else:  # tune_method == 'decoder':
                 self.autoencoder.tune_decoder(x=x_train, x_val=x_val, learning_rate=new_learning_rate,
-                                              tune_epochs=tune_epochs, verbose=self.config.verbose)
+                                              tune_epochs=tune_epochs)
 
-            train_recon_error = self.autoencoder.get_reconstruction_error(x_train, verbose=self.config.verbose)
+            train_recon_error = self.autoencoder.get_reconstruction_error(x_train)
             val_recon_error = (
-                self.autoencoder.get_reconstruction_error(x_val, verbose=self.config.verbose) if len(x_val) > 0 else None
+                self.autoencoder.get_reconstruction_error(x_val) if len(x_val) > 0 else None
             )
 
         # tune/fit threshold
@@ -247,7 +251,7 @@ class FaultDetector(FaultDetectionModel):
         model_path = None
         if save_models:
             model_name = tune_method + '_tuned_model'
-            model_path, model_date = self.save_models(model_name=model_name, overwrite=overwrite_models)
+            model_path, model_date = self.save(model_name=model_name, overwrite=overwrite_models)
         else:
             model_date = datetime.now().strftime("%Y%m%d_%H%M%S")
         return ModelMetadata(
@@ -275,10 +279,10 @@ class FaultDetector(FaultDetectionModel):
 
         Returns:
             FaultDetectionResult: with the following DataFrames:
-                - predicted_anomalies: DataFrame with a column 'anomaly' (bool).
+                - predicted_anomalies: Series with detected anomalies (bool).
                 - reconstruction: DataFrame with reconstruction of the sensor data with timestamp as index.
-                - deviations: DataFrame with reconstruction errors.
-                - anomaly_score: DataFrame with anomaly scores for each timestamp.
+                - recon_error: DataFrame with reconstruction errors.
+                - anomaly_score: Series with anomaly scores for each timestamp.
                 - bias_data: DataFrame with ARCANA results with timestamp as index. None if ARCANA was not run.
                 - arcana_losses: DataFrame containing recorded values for all losses in ARCANA. None if ARCANA was not run.
                 - tracked_bias: List of DataFrames. None if ARCANA was not run.
@@ -287,23 +291,37 @@ class FaultDetector(FaultDetectionModel):
         x = sensor_data.sort_index()
 
         if model_path is not None:
-            self.load_models(model_path=model_path)
+            self._load_from_path(model_path=model_path)
+            self.model_directory = model_path
         else:
             if self.data_preprocessor is None:
                 raise ValueError('No models loaded and no model_path provided!')
             logger.debug('No model_path provided; using existing model instances.')
+
+        if not x.loc[x.index.duplicated()].empty:
+            raise ValueError('There are duplicated indices in the input dataframe `sensor_data`.')
+
+        # Validate conditional features at predict time
+        if self.autoencoder.is_conditional:
+            required = self.autoencoder.conditional_features or []
+            missing_at_predict = [f for f in required if f not in x.columns]
+            if missing_at_predict:
+                raise ValueError(f"Conditional features required by the trained model are missing from "
+                                 f"sensor_data: {sorted(missing_at_predict)}. The model was trained with "
+                                 f"these features and cannot predict without them.")
 
         x_prepped = self.data_preprocessor.transform(x).sort_index()
         x_prepped = x_prepped.astype(self.config.dtype)
         column_order = x_prepped.columns
 
         if self.autoencoder.is_conditional:
-            x_predicted = self.autoencoder.predict(x_prepped, return_conditions=True, verbose=self.config.verbose)
+            x_predicted = self.autoencoder.predict(x_prepped, return_conditions=True)
             x_predicted = x_predicted[column_order]
+            main_cols = [c for c in column_order if c not in self.autoencoder.conditional_features]
+            recon_error = self.autoencoder.get_reconstruction_error(x=x_prepped, reconstruction=x_predicted[main_cols])
         else:
-            x_predicted = self.autoencoder.predict(x_prepped, verbose=self.config.verbose)
-
-        recon_error = self.autoencoder.get_reconstruction_error(x_prepped, verbose=self.config.verbose)
+            x_predicted = self.autoencoder.predict(x_prepped)
+            recon_error = self.autoencoder.get_reconstruction_error(x_prepped, reconstruction=x_predicted)
 
         # inverse transform predictions, so they are comparable to the raw data
         reconstruction = self.data_preprocessor.inverse_transform(x_predicted)
@@ -335,7 +353,7 @@ class FaultDetector(FaultDetectionModel):
         """Predict the anomaly score."""
 
         x_prepped = self.data_preprocessor.transform(sensor_data)
-        recon_error = self.autoencoder.get_reconstruction_error(x_prepped, verbose=self.config.verbose)
+        recon_error = self.autoencoder.get_reconstruction_error(x_prepped)
         scores = self.anomaly_score.transform(recon_error)
         return scores
 
@@ -343,7 +361,8 @@ class FaultDetector(FaultDetectionModel):
         """Predict anomalies based on anomaly scores."""
 
         if self.threshold_selector.__class__.__name__ == 'AdaptiveThresholdSelector':
-            predicted_anomalies, _ = self.threshold_selector.predict(x=scores, scaled_ae_input=x_prepped)
+            predicted_anomalies, _ = self.threshold_selector.predict(
+                x=scores, scaled_ae_input=x_prepped.loc[scores.index])
         else:
             predicted_anomalies = self.threshold_selector.predict(scores)
 
@@ -391,7 +410,7 @@ class FaultDetector(FaultDetectionModel):
 
         # Fit score object only on normal data (all training + validation data)
         x_prepped_all = self.data_preprocessor.transform(x)
-        deviations = self.autoencoder.get_reconstruction_error(x_prepped_all, verbose=self.config.verbose)
+        deviations = self.autoencoder.get_reconstruction_error(x_prepped_all)
         y_ = y.loc[deviations.index]
         self.anomaly_score.fit(deviations[y_.values])  # use series values for compatibility with a multi-index
 
@@ -402,15 +421,76 @@ class FaultDetector(FaultDetectionModel):
                 logger.warning('No validation data available, fit threshold on full training data.')
                 x_val = x
 
-            x_val_all = x_prepped_all.sort_index().loc[x_val.index.min():]  # including known anomalies
-            re_val = self.autoencoder.get_reconstruction_error(x_val_all, verbose=self.config.verbose)
+            # Select all prepped data whose index is in the validation set
+            val_mask = x_prepped_all.index.isin(x_val.index)
+            x_val_all = x_prepped_all[val_mask]
+            re_val = self.autoencoder.get_reconstruction_error(x_val_all)
             scores = self.anomaly_score.transform(re_val)
 
         logger.info('Fit threshold.')
         # fit threshold - x_prepped and labels are filtered based on scores (all or validation data only) used
-        if self.threshold_selector.__class__.__name__ == 'AdaptiveThresholdSelector':
+        if isinstance(self.threshold_selector, AdaptiveThresholdSelector):
             self.threshold_selector.fit(scaled_ae_input=x_prepped_all.loc[scores.index],
                                         anomaly_score=scores,
                                         normal_index=y.loc[scores.index])
         else:
             self.threshold_selector.fit(x=scores, y=y.loc[scores.index])
+
+    def _resolve_conditional_features(self, sensor_data: pd.DataFrame) -> List[str]:
+        """Resolve which conditional features are actually available in the data.
+
+        If all conditional features are missing and the autoencoder is a ConditionalAE,
+        falls back to MultilayerAutoencoder. For sequence models, simply clears the
+        conditional_features list (they handle None gracefully).
+
+        Args:
+            sensor_data: Input DataFrame to check column availability.
+
+        Returns:
+            List of available conditional feature names (may be empty).
+        """
+        configured = self.autoencoder.conditional_features or []
+        if not configured:
+            return []
+
+        available = [f for f in configured if f in sensor_data.columns]
+        missing = set(configured) - set(available)
+
+        if missing:
+            logger.warning(f"Conditional features not found in sensor_data and will be ignored: "
+                           f"{sorted(missing)}. Using: {available or 'none'}")
+
+        if not available:
+            self._fallback_if_no_conditionals()
+        else:
+            self.autoencoder.conditional_features = available
+            self.autoencoder.is_conditional = True
+
+        return available
+
+    def _fallback_if_no_conditionals(self) -> None:
+        """Handle the case where all conditional features are unavailable.
+
+        For ConditionalAE: replaces with MultilayerAutoencoder (same architecture params).
+        For sequence models: just clears conditional_features (they work without).
+        """
+        from energy_fault_detector.autoencoders.conditional_autoencoder import ConditionalAE
+        from energy_fault_detector.autoencoders.multilayer_autoencoder import MultilayerAutoencoder
+        from energy_fault_detector.autoencoders.sequence_autoencoder import SequenceAutoencoder
+
+        if isinstance(self.autoencoder, SequenceAutoencoder):
+            logger.warning("All conditional features are unavailable. "
+                           "Sequence model will proceed without conditional inputs.")
+            self.autoencoder.conditional_features = None
+            self.autoencoder.is_conditional = False
+
+        elif isinstance(self.autoencoder, ConditionalAE):
+            logger.warning("All conditional features are unavailable. "
+                           "Falling back from ConditionalAE to MultilayerAutoencoder.")
+            ae_params = dict(self.config['train']['autoencoder'].get('params', {}))
+            ae_params.pop('conditional_features', None)
+            self.autoencoder = MultilayerAutoencoder(**ae_params)
+
+        else:
+            self.autoencoder.conditional_features = None
+            self.autoencoder.is_conditional = False

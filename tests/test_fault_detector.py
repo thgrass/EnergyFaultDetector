@@ -10,7 +10,11 @@ import pandas as pd
 import numpy as np
 
 from energy_fault_detector.fault_detector import FaultDetector, Config
-from energy_fault_detector.autoencoders import ConditionalAE
+from energy_fault_detector.autoencoders import (
+    BidirectionalLSTMSeq2OneAutoencoder,
+    ConditionalAE,
+    LSTMSeq2OneAutoencoder,
+)
 
 mock_autoencoder = MagicMock()
 mock_data_preprocessor = MagicMock()
@@ -53,8 +57,7 @@ class TestFaultDetectorSaveLoad(unittest.TestCase):
         self.assertEqual(expected_path, model_path)
 
         # Create a new FaultDetector instance and load the saved models
-        loaded_fault_detector = FaultDetector(config=self.conf, model_directory=self.test_dir)
-        loaded_fault_detector.load_models(model_path=model_path)
+        loaded_fault_detector = FaultDetector.load(model_path=model_path)
 
         # Compare the attributes of the original and loaded models
         self.assertIsNotNone(self.fault_detector.autoencoder)
@@ -84,11 +87,11 @@ class TestFaultDetectorSaveLoad(unittest.TestCase):
                                           overwrite_models=True)
         self.assertEqual(self.test_dir, results.model_path)
         # Check path with a model name
-        model_path, _ = self.fault_detector.save_models('my_model', overwrite=False)
+        model_path, _ = self.fault_detector.save('my_model', overwrite=False)
         expected_path = os.path.join(self.test_dir, 'my_model', self.fault_detector.save_timestamps[-1])
         self.assertEqual(expected_path, model_path)
         # and when overwrite = True
-        model_path, _ = self.fault_detector.save_models('my_model', overwrite=True)
+        model_path, _ = self.fault_detector.save('my_model', overwrite=True)
         expected_path = os.path.join(self.test_dir, 'my_model')
         self.assertEqual(expected_path, model_path)
 
@@ -136,19 +139,12 @@ class TestFaultDetector(unittest.TestCase):
         self.assertEqual(fault_detector.model_directory, str(self.test_model_dir))
         self.assertEqual(fault_detector.config, self.conf)
 
-    def test_missing_config(self):
-        with self.assertLogs('energy_fault_detector', level='DEBUG') as cm:
-            ad = FaultDetector(model_directory=self.test_model_dir)
-            self.assertEqual(cm.output,
-                             [
-                                 'DEBUG:energy_fault_detector:No configuration set. Load models and config from path with the `FaultDetector.load_models` method.'])
-
     def test_save_models(self):
         self.conf.write_config = MagicMock()
         fault_detector = self._create_fault_detector(self.conf)
 
         asset_id = 1
-        path, dt = fault_detector.save_models(model_name=asset_id)
+        path, dt = fault_detector.save(model_name=asset_id)
 
         model_objects = [mock_score, mock_data_preprocessor, mock_autoencoder, mock_threshold]
         names = ['anomaly_score', 'data_preprocessor', 'autoencoder', 'threshold_selector']
@@ -161,15 +157,21 @@ class TestFaultDetector(unittest.TestCase):
         self.assertEqual(fault_detector.config.write_config.call_args[0][0],
                          os.path.join(fault_detector.model_directory, str(asset_id), dt, 'config.yaml'))
 
-    def test_load_models(self):
-        fault_detector = self._create_fault_detector(self.conf)
-        fault_detector._load_pickled_model = MagicMock()
-        fault_detector._load_pickled_model.side_effect = [mock_data_preprocessor,
-                                                          mock_autoencoder,
-                                                          mock_threshold,
-                                                          mock_score]
+    @patch("energy_fault_detector.core.fault_detection_model.FaultDetectionModel._load_pickled_model")
+    @patch("energy_fault_detector.config.Config.read_config")
+    def test_load_models(self, mock_load_pickled_model, mock_read_config):
+        mock_load_pickled_model.side_effect = [
+            mock_data_preprocessor,
+            mock_autoencoder,
+            mock_threshold,
+            mock_score,
+        ]
+        mock_read_config = MagicMock()
 
-        fault_detector.load_models(model_path='path_to_saved_models')
+        fault_detector = FaultDetector.load("path_to_saved_models")
+
+        # Assert: we got a FaultDetector instance
+        self.assertIsInstance(fault_detector, FaultDetector)
         names = ['data_preprocessor', 'autoencoder', 'threshold_selector', 'anomaly_score']
         for call_args, name in zip(fault_detector._load_pickled_model.call_args_list, names):
             self.assertEqual(call_args[1]['model_type'], name)
@@ -182,6 +184,8 @@ class TestFaultDetector(unittest.TestCase):
         mock_data_preprocessor.transform.side_effect = [self.sensor_data[self.normal_index],
                                                         self.sensor_data]
         mock_autoencoder.get_reconstruction_error.side_effect = [self.recon_error, self.recon_error, self.recon_error]
+        mock_autoencoder.conditional_features = []
+        mock_autoencoder.is_conditional = False
         mock_score.transform.side_effect = [pd.Series([0.1, 0.2, 0.15])] * 2
 
         results = fault_detector.fit(sensor_data=self.sensor_data,
@@ -211,18 +215,20 @@ class TestFaultDetector(unittest.TestCase):
                                                         self.sensor_data]
         mock_autoencoder.get_reconstruction_error.side_effect = [self.recon_error, self.recon_error, self.recon_error]
         mock_score.transform.return_value = pd.Series([0.1, 0.2, 0.15])
+        mock_score.reset_mock()
 
         _ = fault_detector.fit(sensor_data=self.sensor_data,
                                normal_index=self.normal_index,
                                save_models=False)
 
-        mock_score.save.asset_not_called()
+        mock_score.save.assert_not_called()
         self.assertEqual(self.conf.write_config.call_count, 1)
 
     def test_tune(self):
         mock_data_preprocessor.transform.side_effect = [self.sensor_data[self.normal_index],
                                                         self.sensor_data]
         mock_autoencoder.get_reconstruction_error.side_effect = [self.recon_error] * 9
+        mock_autoencoder.is_conditional = False
         mock_score.transform.side_effect = [pd.Series([0.1, 0.2, 0.15])] * 3
         mock_data_preprocessor.transform.side_effect = [self.sensor_data[self.normal_index],
                                                         self.sensor_data]
@@ -230,7 +236,7 @@ class TestFaultDetector(unittest.TestCase):
         tune_results = fault_detector.tune(sensor_data=self.sensor_data, normal_index=self.normal_index,
                                            new_learning_rate=0.001, tune_epochs=1, tune_method='full',
                                            save_models=False)
-        mock_autoencoder.tune.called_once()
+        mock_autoencoder.tune.assert_called_once()
 
         mock_data_preprocessor.transform.side_effect = [self.sensor_data[self.normal_index],
                                                         self.sensor_data]
@@ -238,12 +244,12 @@ class TestFaultDetector(unittest.TestCase):
         tune_results = fault_detector.tune(sensor_data=self.sensor_data, normal_index=self.normal_index,
                                            new_learning_rate=0.001, tune_epochs=1, tune_method='decoder',
                                            save_models=False)
-        mock_autoencoder.tune_decoder.called_once()
+        mock_autoencoder.tune_decoder.assert_called_once()
 
     @patch('energy_fault_detector.root_cause_analysis.arcana.Arcana.find_arcana_bias')
     def test_predict(self, mock_find_arcana_bias):
         fault_detector = self._create_fault_detector(self.conf)
-        fault_detector.load_models = MagicMock()  # ensures we use the mock model objects
+        fault_detector._load_from_path = MagicMock()  # ensures we use the mock model objects
 
         # set up test
         mock_data_preprocessor.transform.return_value = self.sensor_data
@@ -270,9 +276,16 @@ class TestFaultDetector(unittest.TestCase):
         mock_find_arcana_bias.assert_called_once()
         mock_find_arcana_bias.assert_called_with(x=self.sensor_data, track_losses=False, track_bias=False)
 
+        # Verify reconstruction was passed to get_reconstruction_error
+        mock_autoencoder.get_reconstruction_error.assert_called_once()
+        call_kwargs = mock_autoencoder.get_reconstruction_error.call_args
+        self.assertIn('reconstruction', call_kwargs.kwargs)
+
+        # predict should only be called once (not again inside get_reconstruction_error)
+        mock_autoencoder.predict.assert_called_once()
+
     def test__fit_threshold(self):
         fault_detector = self._create_fault_detector(self.conf)
-        fault_detector.load_models = MagicMock()  # ensures we use the mock model objects
 
         # set up test
         mock_data_preprocessor.transform.return_value = self.sensor_data
@@ -310,3 +323,420 @@ class TestFaultDetectorModelCreation(unittest.TestCase):
         model = FaultDetector(config, model_directory=self.test_model_dir)
         self.assertIsInstance(model.autoencoder, ConditionalAE)
         self.assertListEqual(model.autoencoder.conditional_features, ['feature_a', 'feature_b'])
+
+    def test_sequential_model_created(self):
+        config = Config(os.path.join(PROJECT_ROOT, './tests/test_data/test_config_ts_freq.yaml'))
+        model = FaultDetector(config, model_directory=self.test_model_dir)
+        self.assertIsInstance(model.autoencoder, LSTMSeq2OneAutoencoder)
+
+    def test_bidirectional_sequential_model_created(self):
+        config = Config(os.path.join(PROJECT_ROOT, './tests/test_data/test_config_bilstm_seq2one.yaml'))
+        model = FaultDetector(config, model_directory=self.test_model_dir)
+        self.assertIsInstance(model.autoencoder, BidirectionalLSTMSeq2OneAutoencoder)
+
+
+class TestFaultDetectorSequenceSaveLoad(unittest.TestCase):
+    """Round-trip saving/loading for a sequence AE + FaultDetector."""
+
+    def setUp(self) -> None:
+        self.config_path = os.path.join(PROJECT_ROOT, 'tests/test_data/test_config_ts_freq.yaml')
+        self.conf = Config(self.config_path)
+
+        self.tmp_dir = tempfile.mkdtemp()
+
+        # Synthetic time series matching ts_freq = 30s
+        n = 200
+        index = pd.date_range("2025-01-01", periods=n, freq="30s")
+        np.random.seed(42)
+        self.sensor_data = pd.DataFrame(
+            np.random.randn(n, 3), index=index, columns=["f1", "f2", "f3"]
+        )
+        # For training we assume all normal
+        self.normal_index = pd.Series(True, index=index)
+
+    def tearDown(self) -> None:
+        shutil.rmtree(self.tmp_dir)
+
+    def test_sequence_model_save_and_load_roundtrip(self) -> None:
+        # Train and save
+        fd = FaultDetector(config=self.conf, model_directory=self.tmp_dir)
+        result = fd.fit(sensor_data=self.sensor_data, normal_index=self.normal_index)
+        model_path = result.model_path
+
+        # Sanity: we really trained a sequence AE
+        self.assertIsInstance(fd.autoencoder, LSTMSeq2OneAutoencoder)
+        sb = fd.autoencoder.sequence_builder
+        self.assertEqual(sb.sequence_length, 36)
+        self.assertEqual(sb.stride, 1)
+        self.assertEqual(sb.pad_incomplete, False)
+        self.assertEqual(sb.pad_value, 0.0)
+
+        # Load into a fresh FaultDetector
+        fd2 = FaultDetector.load(model_path=model_path)
+
+        # Autoencoder type and sequence_builder attributes should match
+        self.assertIsInstance(fd2.autoencoder, LSTMSeq2OneAutoencoder)
+        sb2 = fd2.autoencoder.sequence_builder
+        self.assertEqual(sb2.sequence_length, sb.sequence_length)
+        self.assertEqual(sb2.stride, sb.stride)
+        self.assertEqual(sb2.pad_incomplete, sb.pad_incomplete)
+        self.assertEqual(sb2.pad_value, sb.pad_value)
+        self.assertEqual(sb2.ts_freq, sb.ts_freq)
+
+        # Weights should be equal
+        w1 = fd.autoencoder.model.get_weights()
+        w2 = fd2.autoencoder.model.get_weights()
+        self.assertEqual(len(w1), len(w2))
+        for a, b in zip(w1, w2):
+            np.testing.assert_allclose(a, b, atol=1e-6)
+
+        # Config should round-trip as well
+        self.assertDictEqual(fd.config.config_dict, fd2.config.config_dict)
+
+
+class TestFaultDetectorBidirectionalSequenceSaveLoad(unittest.TestCase):
+    """Round-trip saving/loading for a bidirectional sequence AE + FaultDetector."""
+
+    def setUp(self) -> None:
+        self.config_path = os.path.join(PROJECT_ROOT, 'tests/test_data/test_config_bilstm_seq2one.yaml')
+        self.conf = Config(self.config_path)
+
+        self.tmp_dir = tempfile.mkdtemp()
+
+        n = 200
+        index = pd.date_range("2025-01-01", periods=n, freq="30s")
+        np.random.seed(42)
+        self.sensor_data = pd.DataFrame(
+            np.random.randn(n, 3), index=index, columns=["f1", "f2", "f3"]
+        )
+        self.normal_index = pd.Series(True, index=index)
+
+    def tearDown(self) -> None:
+        shutil.rmtree(self.tmp_dir)
+
+    def test_sequence_model_save_and_load_roundtrip(self) -> None:
+        fd = FaultDetector(config=self.conf, model_directory=self.tmp_dir)
+        result = fd.fit(sensor_data=self.sensor_data, normal_index=self.normal_index)
+        model_path = result.model_path
+
+        self.assertIsInstance(fd.autoencoder, BidirectionalLSTMSeq2OneAutoencoder)
+        sb = fd.autoencoder.sequence_builder
+        self.assertEqual(sb.sequence_length, 36)
+        self.assertEqual(sb.stride, 1)
+        self.assertEqual(sb.pad_incomplete, False)
+        self.assertEqual(sb.pad_value, 0.0)
+
+        fd2 = FaultDetector.load(model_path=model_path)
+
+        self.assertIsInstance(fd2.autoencoder, BidirectionalLSTMSeq2OneAutoencoder)
+        sb2 = fd2.autoencoder.sequence_builder
+        self.assertEqual(sb2.sequence_length, sb.sequence_length)
+        self.assertEqual(sb2.stride, sb.stride)
+        self.assertEqual(sb2.pad_incomplete, sb.pad_incomplete)
+        self.assertEqual(sb2.pad_value, sb.pad_value)
+        self.assertEqual(sb2.ts_freq, sb.ts_freq)
+
+        w1 = fd.autoencoder.model.get_weights()
+        w2 = fd2.autoencoder.model.get_weights()
+        self.assertEqual(len(w1), len(w2))
+        for a, b in zip(w1, w2):
+            np.testing.assert_allclose(a, b, atol=1e-6)
+
+        self.assertDictEqual(fd.config.config_dict, fd2.config.config_dict)
+
+
+class TestAutoencoderGetReconstructionError(unittest.TestCase):
+    """Test that get_reconstruction_error skips predict when reconstruction is provided."""
+
+    def setUp(self):
+        self.sensor_data = pd.DataFrame(
+            [[1., 2., 3.], [4., 5., 6.]], columns=['a', 'b', 'c']
+        )
+        self.reconstruction = pd.DataFrame(
+            [[1.1, 2.0, 3.0], [4.0, 4.9, 6.0]], columns=['a', 'b', 'c']
+        )
+
+    def test_skips_predict_when_reconstruction_provided(self):
+        """predict() should NOT be called when reconstruction is passed."""
+        from energy_fault_detector.autoencoders import MultilayerAutoencoder
+
+        ae = MultilayerAutoencoder(layers=[5], code_size=2, epochs=1)
+        ae.create_model(input_dimension=3)
+        ae.compile_model()
+        # Fit minimally so _is_fitted() passes
+        ae.history = {'loss': [0.1]}
+
+        with patch.object(ae, 'predict', wraps=ae.predict) as mock_predict:
+            result = ae.get_reconstruction_error(
+                self.sensor_data, reconstruction=self.reconstruction
+            )
+            mock_predict.assert_not_called()
+
+        expected = self.reconstruction - self.sensor_data
+        pd.testing.assert_frame_equal(result, expected)
+
+    def test_calls_predict_when_reconstruction_is_none(self):
+        """predict() should be called when reconstruction is not passed."""
+        from energy_fault_detector.autoencoders import MultilayerAutoencoder
+
+        ae = MultilayerAutoencoder(layers=[5], code_size=2, epochs=1)
+        ae.create_model(input_dimension=3)
+        ae.compile_model()
+        ae.history = {'loss': [0.1]}
+
+        with patch.object(ae, 'predict', return_value=self.reconstruction) as mock_predict:
+            result = ae.get_reconstruction_error(self.sensor_data)
+            mock_predict.assert_called_once()
+
+
+class TestFaultDetectorConditionalFeatureResolution(unittest.TestCase):
+    """Test conditional feature resolution, fallback, and predict-time validation."""
+
+    def setUp(self) -> None:
+        self.config_path = os.path.join(PROJECT_ROOT, 'tests/test_data/test_conditional_ae_config.yaml')
+        self.conf = Config(self.config_path)
+        self.test_dir = tempfile.mkdtemp()
+
+        np.random.seed(42)
+        length = 100
+        self.sensor_data = pd.DataFrame({
+            'feature_a': np.random.random(size=length),
+            'feature_b': np.random.random(size=length),
+            'feature_c': np.random.random(size=length),
+            'feature_d': np.random.random(size=length),
+        })
+        self.normal_index = pd.Series([True] * 80 + [False] * 20)
+
+    def tearDown(self) -> None:
+        shutil.rmtree(self.test_dir)
+
+    def test_resolve_partial_missing_conditionals(self):
+        """When some conditional features are missing, only available ones are kept."""
+        fd = FaultDetector(config=self.conf, model_directory=self.test_dir)
+        # Config has conditional_features: ['feature_a', 'feature_b']
+        self.assertEqual(fd.autoencoder.conditional_features, ['feature_a', 'feature_b'])
+
+        # Drop feature_b from sensor data
+        sensor_data_partial = self.sensor_data.drop(columns=['feature_b'])
+
+        available = fd._resolve_conditional_features(sensor_data_partial)
+
+        self.assertEqual(available, ['feature_a'])
+        self.assertEqual(fd.autoencoder.conditional_features, ['feature_a'])
+        self.assertTrue(fd.autoencoder.is_conditional)
+
+    def test_resolve_all_missing_conditionals_fallback_to_multilayer(self):
+        """When ALL conditional features are missing, ConditionalAE falls back to MultilayerAutoencoder."""
+        from energy_fault_detector.autoencoders import MultilayerAutoencoder
+
+        fd = FaultDetector(config=self.conf, model_directory=self.test_dir)
+        self.assertIsInstance(fd.autoencoder, ConditionalAE)
+
+        # Drop both conditional features
+        sensor_data_no_cond = self.sensor_data.drop(columns=['feature_a', 'feature_b'])
+
+        available = fd._resolve_conditional_features(sensor_data_no_cond)
+
+        self.assertEqual(available, [])
+        self.assertIsInstance(fd.autoencoder, MultilayerAutoencoder)
+        self.assertFalse(fd.autoencoder.is_conditional)
+        self.assertIsNone(fd.autoencoder.conditional_features)
+
+    def test_fallback_preserves_architecture_params(self):
+        """Fallback MultilayerAutoencoder should have the same architecture params from config."""
+        from energy_fault_detector.autoencoders import MultilayerAutoencoder
+
+        fd = FaultDetector(config=self.conf, model_directory=self.test_dir)
+        ae_params = self.conf['train']['autoencoder'].get('params', {})
+
+        sensor_data_no_cond = self.sensor_data.drop(columns=['feature_a', 'feature_b'])
+        fd._resolve_conditional_features(sensor_data_no_cond)
+
+        self.assertIsInstance(fd.autoencoder, MultilayerAutoencoder)
+        self.assertEqual(fd.autoencoder.code_size, ae_params.get('code_size', 10))
+        self.assertEqual(fd.autoencoder.layers, ae_params.get('layers', [200]))
+
+    def test_resolve_no_conditionals_configured_is_noop(self):
+        """When no conditional features are configured, resolution is a no-op."""
+        config = Config(os.path.join(PROJECT_ROOT, 'tests/test_data/test_config.yaml'))
+        fd = FaultDetector(config=config, model_directory=self.test_dir)
+
+        self.assertFalse(fd.autoencoder.is_conditional)
+
+        available = fd._resolve_conditional_features(self.sensor_data)
+
+        self.assertEqual(available, [])
+        self.assertFalse(fd.autoencoder.is_conditional)
+
+    def test_resolve_all_present_no_change(self):
+        """When all conditional features are present, no change occurs."""
+        fd = FaultDetector(config=self.conf, model_directory=self.test_dir)
+
+        available = fd._resolve_conditional_features(self.sensor_data)
+
+        self.assertEqual(available, ['feature_a', 'feature_b'])
+        self.assertIsInstance(fd.autoencoder, ConditionalAE)
+        self.assertTrue(fd.autoencoder.is_conditional)
+
+    def test_predict_raises_on_missing_trained_conditionals(self):
+        """Predict raises ValueError when trained conditional features are missing."""
+        fd = FaultDetector(config=self.conf, model_directory=self.test_dir)
+
+        # Train with all features present
+        fd.fit(sensor_data=self.sensor_data, normal_index=self.normal_index, save_models=False)
+
+        # Predict without feature_a
+        sensor_data_missing = self.sensor_data.drop(columns=['feature_a'])
+
+        with self.assertRaises(ValueError) as ctx:
+            fd.predict(sensor_data=sensor_data_missing)
+
+        self.assertIn('feature_a', str(ctx.exception))
+        self.assertIn('missing', str(ctx.exception).lower())
+
+    def test_fit_with_all_conditionals_missing_trains_successfully(self):
+        """Fit with all conditionals missing falls back and trains successfully."""
+        from energy_fault_detector.autoencoders import MultilayerAutoencoder
+
+        fd = FaultDetector(config=self.conf, model_directory=self.test_dir)
+        sensor_data_no_cond = self.sensor_data.drop(columns=['feature_a', 'feature_b'])
+
+        result = fd.fit(sensor_data=sensor_data_no_cond, normal_index=self.normal_index, save_models=False)
+
+        self.assertIsInstance(fd.autoencoder, MultilayerAutoencoder)
+        self.assertIsNotNone(result.train_recon_error)
+
+    def test_fit_with_partial_conditionals_trains_successfully(self):
+        """Fit with some conditionals missing still trains with remaining ones."""
+        fd = FaultDetector(config=self.conf, model_directory=self.test_dir)
+        sensor_data_partial = self.sensor_data.drop(columns=['feature_b'])
+
+        result = fd.fit(sensor_data=sensor_data_partial, normal_index=self.normal_index, save_models=False)
+
+        self.assertIsInstance(fd.autoencoder, ConditionalAE)
+        self.assertEqual(fd.autoencoder.conditional_features, ['feature_a'])
+        self.assertIsNotNone(result.train_recon_error)
+
+
+class TestFaultDetectorProtectConditionalFeaturesFalse(unittest.TestCase):
+    """Test behavior when protect_conditional_features is False."""
+
+    def setUp(self) -> None:
+        self.config_path = os.path.join(PROJECT_ROOT, 'tests/test_data/test_conditional_ae_config.yaml')
+        self.conf = Config(self.config_path)
+        # Set protect_conditional_features to False
+        self.conf.config_dict['train']['protect_conditional_features'] = False
+        self.test_dir = tempfile.mkdtemp()
+
+        np.random.seed(42)
+        length = 100
+        # feature_a is constant → will be dropped by LowUniqueValueFilter when unprotected
+        self.sensor_data = pd.DataFrame({
+            'feature_a': [1.0] * length,
+            'feature_b': np.random.random(size=length),
+            'feature_c': np.random.random(size=length),
+            'feature_d': np.random.random(size=length),
+        })
+        self.normal_index = pd.Series([True] * 80 + [False] * 20)
+
+    def tearDown(self) -> None:
+        shutil.rmtree(self.test_dir)
+
+    def test_conditional_features_can_be_dropped_when_unprotected(self):
+        """When protect=False, pipeline can drop constant conditional features."""
+        from energy_fault_detector.autoencoders import MultilayerAutoencoder
+
+        fd = FaultDetector(config=self.conf, model_directory=self.test_dir)
+        self.assertFalse(fd.config.protect_conditional_features)
+
+        result = fd.fit(sensor_data=self.sensor_data, normal_index=self.normal_index, save_models=False)
+
+        # feature_a was constant, should have been dropped, triggering fallback
+        # Since feature_b survived, autoencoder should still be conditional with just feature_b
+        # OR if feature_a was the only one dropped, we still have feature_b
+        if fd.autoencoder.is_conditional:
+            self.assertNotIn('feature_a', fd.autoencoder.conditional_features)
+            self.assertIn('feature_b', fd.autoencoder.conditional_features)
+        else:
+            # Both were dropped → fallback
+            self.assertIsInstance(fd.autoencoder, MultilayerAutoencoder)
+
+    def test_protect_true_keeps_constant_conditional(self):
+        """When protect=True (default), constant conditional features are kept."""
+        self.conf.config_dict['train']['protect_conditional_features'] = True
+
+        fd = FaultDetector(config=self.conf, model_directory=self.test_dir)
+        fd.fit(sensor_data=self.sensor_data, normal_index=self.normal_index, save_models=False)
+
+        feature_names = fd.data_preprocessor.get_feature_names_out()
+        self.assertIn('feature_a', feature_names)
+        self.assertIsInstance(fd.autoencoder, ConditionalAE)
+
+
+class TestFaultDetectorSequenceConditionalFallback(unittest.TestCase):
+    """Test conditional feature fallback for sequence models."""
+
+    def setUp(self) -> None:
+        self.config_path = os.path.join(PROJECT_ROOT, 'tests/test_data/test_config_ts_freq.yaml')
+        self.conf = Config(self.config_path)
+        self.test_dir = tempfile.mkdtemp()
+
+        n = 200
+        index = pd.date_range("2025-01-01", periods=n, freq="30s")
+        np.random.seed(42)
+        self.sensor_data = pd.DataFrame(
+            np.random.randn(n, 3), index=index, columns=["f1", "f2", "f3"]
+        )
+        self.normal_index = pd.Series(True, index=index)
+
+    def tearDown(self) -> None:
+        shutil.rmtree(self.test_dir)
+
+    def test_sequence_model_clears_missing_conditionals(self):
+        """Sequence model with missing conditionals just clears them (no class swap)."""
+        # Manually set conditional features on the sequence model
+        fd = FaultDetector(config=self.conf, model_directory=self.test_dir)
+        fd.autoencoder.conditional_features = ['nonexistent_feature']
+        fd.autoencoder.is_conditional = True
+
+        available = fd._resolve_conditional_features(self.sensor_data)
+
+        self.assertEqual(available, [])
+        self.assertIsInstance(fd.autoencoder, LSTMSeq2OneAutoencoder)
+        self.assertIsNone(fd.autoencoder.conditional_features)
+        self.assertFalse(fd.autoencoder.is_conditional)
+
+
+class TestProtectConditionalFeaturesConfigProperty(unittest.TestCase):
+    """Test the config property for protect_conditional_features."""
+
+    def test_default_is_false(self):
+        """Default value should be False when not specified."""
+        config = Config(os.path.join(PROJECT_ROOT, 'tests/test_data/test_config.yaml'))
+        self.assertFalse(config.protect_conditional_features)
+
+    def test_explicit_false(self):
+        """Explicit False in config should be respected."""
+        config = Config(config_dict={
+            'train': {
+                'protect_conditional_features': False,
+                'data_preprocessor': {'steps': []},
+                'autoencoder': {'name': 'default', 'params': {'epochs': 1}},
+                'anomaly_score': {'name': 'rmse'},
+                'threshold_selector': {'name': 'quantile', 'params': {'quantile': 0.95}},
+            }
+        })
+        self.assertFalse(config.protect_conditional_features)
+
+    def test_explicit_true(self):
+        """Explicit True in config should be respected."""
+        config = Config(config_dict={
+            'train': {
+                'protect_conditional_features': True,
+                'data_preprocessor': {'steps': []},
+                'autoencoder': {'name': 'default', 'params': {'epochs': 1}},
+                'anomaly_score': {'name': 'rmse'},
+                'threshold_selector': {'name': 'quantile', 'params': {'quantile': 0.95}},
+            }
+        })
+        self.assertTrue(config.protect_conditional_features)

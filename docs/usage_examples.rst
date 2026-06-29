@@ -3,18 +3,98 @@ Usage examples
 To see interactive demonstrations of the energy fault detection package,
 refer to the example notebooks in the repository's notebooks folder.
 
-.. toctree::
-    :caption: Contents
-    :glob:
-    :maxdepth: 2
-
 .. contents:: Table of Contents
     :depth: 3
     :local:
 
 
-Energy Fault Detection
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. _key_concepts:
+
+Key concepts and expected input
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Throughout this documentation we use the following objects and conventions.
+
+* :class:`FaultDetector <energy_fault_detector.fault_detector.FaultDetector>`:
+  the main high-level interface. It wraps the whole fault detection pipeline (preprocessing, autoencoder training,
+  anomaly scoring and threshold selection) into a single object with:
+
+  - :meth:`fit <energy_fault_detector.fault_detector.FaultDetector.fit>` to train on ``sensor_data`` / ``normal_index``, and
+  - :meth:`predict <energy_fault_detector.fault_detector.FaultDetector.predict>` to compute anomaly scores and
+    predicted anomalies.
+
+* Configuration: :class:`FaultDetector <energy_fault_detector.fault_detector.FaultDetector>` behaviour
+  is controlled via a YAML configuration parsed by :class:`Config <energy_fault_detector.config.config.Config>`.
+  For most users, the easiest entry point is
+  :func:`generate_quickstart_config <energy_fault_detector.config.quickstart_config.generate_quickstart_config>`,
+  which returns a minimal, valid configuration. For more control, you can provide your own YAML file; see
+  :doc:`configuration` for examples.
+
+* ``sensor_data``: a :class:`pandas.DataFrame` in **wide format**.
+  Each row is a timestamp (or index entry), each column a sensor or feature.
+  The index is typically:
+
+  - a unique, sorted :class:`pandas.DatetimeIndex`, or
+  - a :class:`pandas.MultiIndex` such as ``(asset_id, timestamp)`` for multi-device data.
+
+  The columns must be numeric (or convertible to numeric).
+
+* ``normal_index``: an optional :class:`pandas.Series` with the same index as ``sensor_data`` and boolean values.
+  ``True`` marks normal operation, ``False`` marks non-normal operation (faults, maintenance, curtailment, etc.).
+
+  If you do not provide ``normal_index``, the models assume that all samples in ``sensor_data`` represent normal
+  behaviour. In that case you cannot use label-based threshold selectors such as
+  :class:`FbetaSelector <energy_fault_detector.threshold_selectors.fbeta_threshold.FbetaSelector>`
+  or :class:`FDRSelector <energy_fault_detector.threshold_selectors.fdr_threshold.FDRSelector>`, but
+  you can still use quantile-based or adaptive thresholds.
+
+A summary of available model classes (autoencoders, anomaly scores, and threshold selectors) is given in
+:doc:`models_overview`.
+
+Minimal end-to-end example
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The following example shows the full workflow in a few lines: load data,
+create a configuration, train a model and predict.
+
+.. code-block:: python
+
+    import pandas as pd
+    from energy_fault_detector import FaultDetector, Config
+    from energy_fault_detector.config import generate_quickstart_config
+
+    # 1. Load your data
+    df = pd.read_csv("my_data.csv", parse_dates=["timestamp"], index_col="timestamp")
+    df = df.sort_index()  # ensure sorted
+    # Keep only numeric sensor columns
+    sensor_data = df[["power", "wind_speed", "pitch"]]  # adapt to your dataset
+
+    # Boolean normal_index: True = normal operation
+    # This is optional; if omitted, all data is treated as normal
+    normal_index = df["status"] == "normal"
+
+    # 2. Generate and load a base config
+    generate_quickstart_config(output_path="base_config.yaml")
+    config = Config("base_config.yaml")
+
+    # 3. Train a normal-behavior model
+    fault_detector = FaultDetector(config=config, model_directory="fault_detector_model")
+    model_meta = fault_detector.fit(sensor_data=sensor_data, normal_index=normal_index)  # returns ModelMetadata
+
+    # 4. Predict anomalies
+    results = fault_detector.predict(sensor_data=sensor_data)
+
+    anomalies = results.predicted_anomalies    # pd.Series[bool]
+    scores = results.anomaly_score             # pd.Series[float]
+    recon = results.reconstruction             # pd.DataFrame
+    recon_error = results.recon_error          # pd.DataFrame
+
+For more configuration options and details (e.g. updating at runtime and listing available model classes),
+see :ref:`configuration_guide`.
+
+
+Standard `FaultDetector` usage
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The main interface for the `energy-fault-detector` package is the :py:obj:`FaultDetector <energy_fault_detector.fault_detector.FaultDetector>` class, which
 needs a configuration object :py:obj:`Config <energy_fault_detector.config.config.Config>`.
 
@@ -25,7 +105,7 @@ create a configuration, as described below in the :ref:`configuration` section, 
 
     from energy_fault_detector import FaultDetector, Config
 
-    config = Config('configs/basic_config.yaml')
+    config = Config('path/to/your/configuration/file.yaml')
     fault_detector = FaultDetector(config=config, model_directory='model_directory')
 
 To train new models, you need to provide the input data and call the :py:obj:`FaultDetector.fit <energy_fault_detector.fault_detector.FaultDetector.fit>` method:
@@ -37,7 +117,8 @@ To train new models, you need to provide the input data and call the :py:obj:`Fa
     normal_index = ...  # a pandas Series with timestamp as index and booleans indicating normal behaviour
     # NOTE: The normal_index is optional; it is used to select training data for the autoencoder.
     # If not provided, we assume all data represents normal behaviour.
-    # If you do not have any labels, you cannot use th F-beta-score- and FDR-based thresholds.
+    # If you do not have normal_index labels, you cannot use the F-beta-score- and FDR-based thresholds.
+    # In that case, use the quantile-based threshold (default) or AdaptiveThreshold.
 
     # If you do not use the models for time series, the index can also be a standard RangeIndex,
     # as long as the sensor_data DataFrame and the normal_index Series share the same index.
@@ -69,133 +150,114 @@ with the following information:
 * tracked_bias: List of pandas DataFrames. None if ARCANA was not run.
 
 You can also create a :py:obj:`FaultDetector <energy_fault_detector.fault_detector.FaultDetector>` object and load
-trained models using the :py:obj:`FaultDetector.load_models <energy_fault_detector.core.fault_detection_model.FaultDetectionModel.load_models>` method. In this case, you do not need to provide a ``model_path``
-in the :py:obj:`predict <energy_fault_detector.fault_detector.FaultDetector.predict>` method.
+trained models using the :py:obj:`FaultDetector.load <energy_fault_detector.core.fault_detection_model.FaultDetectionModel.load>` class method.
 
 .. code-block:: python
 
     from energy_fault_detector.fault_detector import FaultDetector
 
-    fault_detector = FaultDetector()
-    fault_detector.load_models('path_to_trained_models')
+    fault_detector = FaultDetector.load('path_to_trained_models')
 
     # get data from database / csv / API ...
     sensor_data = ...
     results = fault_detector.predict(sensor_data=sensor_data)
 
 
+For an overview of the available autoencoders, anomaly scores and threshold
+selectors that can be used in the configuration, see :doc:`models_overview`.
+
+Quick fault detection (CLI)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For a one-command experiment on a CSV file, you can use the
+:ref:`quick_fault_detector_cli` command-line interface:
+
+.. code-block:: bash
+
+    quick_fault_detector path/to/data.csv --options path/to/options.yaml
+
+This runs the full pipeline (training, prediction, event aggregation and ARCANA) and produces plots and CSV outputs.
+
+For details, see :doc:`quick_fault_detection`.
+
 .. _configuration:
 
 Configuration
 ^^^^^^^^^^^^^
 
-The training configuration is set with a ``yaml`` file which contains ``train`` specification with model settings, to
-train new models and ``root_cause_analysis`` specification if you want to analyse the model predictions with the `ARCANA`
-algorithm. An example:
+The behaviour of the :py:class:`FaultDetector <energy_fault_detector.fault_detector.FaultDetector>`
+is controlled by a YAML configuration, parsed by :py:class:`Config <energy_fault_detector.config.config.Config>`.
+The config typically has:
 
-.. include:: basic_config.yaml
-   :literal:
+- a ``train`` section:
+  - ``data_preprocessor``: preprocessing pipeline (imputation, scaling, etc.),
+  - ``autoencoder``: model type and training parameters,
+  - ``anomaly_score``: how reconstruction errors are turned into scores,
+  - ``threshold_selector``: how a score threshold is chosen,
+  - ``data_splitter``: how training/validation sets are split,
+  - optional ``data_clipping``: outlier clipping on training data only.
+- an optional ``root_cause_analysis`` section for ARCANA.
+- an optional ``predict`` section (e.g. criticality settings).
 
-If you leave out the data_preprocessor configuration (i.e., ``data_preprocessor: None``), as default preprocessing
-pipeline is generated, which drops constant features, features where >5% of the data is missing, imputes remaining
-missing values with the mean value and scales the data to zero mean and unit standard deviation.
-
-See the :ref:`Configuration guide <configuration_guide>` for more details on the configuration file and options.
-
-To update the configuration 'on the fly' (for example for hyperparameter optimization), you provide a new
-configuration dictionary via the :py:obj:`Config.update_config <energy_fault_detector.config.config.Config.update_config>` method:
-
-.. code-block:: python
-
-  from energy_fault_detector.config import Config
-  from copy import deepcopy
-
-  config = Config('configs/base_config.yaml')
-
-  # update some parameters:
-  new_config_dict = deepcopy(config.config_dict)
-  new_config_dict['train']['anomaly_score']['name'] = 'mahalanobis'
-  config.update_config(new_config_dict)
-
-  # or create a new configuration object and model
-  new_model = FaultDetector(Config(config_dict=new_config_dict))
-
-You can look up the names for the available model classes in the class registry:
+For most users, the easiest way to create a valid configuration is via :func:`generate_quickstart_config <energy_fault_detector.config.quickstart_config.generate_quickstart_config>`:
 
 .. code-block:: python
 
-    from energy_fault_detector import registry
+   from energy_fault_detector.config.quickstart_config import generate_quickstart_config
+   from energy_fault_detector.config import Config
 
-    registry.print_available_classes()
+   # Create a minimal, valid config file
+   generate_quickstart_config(output_path="base_config.yaml")
+
+   # Load and use it
+   cfg = Config("base_config.yaml")
+   fd = FaultDetector(config=cfg)
+
+If you prefer to write the YAML yourself or need more control, see the :ref:`Configuration guide <configuration_guide>`
+for a full reference and examples.
 
 
-Evaluation
-^^^^^^^^^^
-Please check the example notebooks for evaluation examples.
+Root cause analysis with ARCANA
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Creating new model classes
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-You can extend the framework by creating new model classes based on the templates in the
-:py:obj:`core <energy_fault_detector.core>` module and registering the new classes.
-Examples are shown in the notebook ``Example - Create new model classes.ipynb``.
+The :py:meth:`FaultDetector.run_root_cause_analysis <energy_fault_detector.fault_detector.FaultDetector.run_root_cause_analysis>`
+method runs the ARCANA algorithm on a trained model and returns per-feature bias information.
 
-Creating your own pipeline
+For a dedicated explanation and examples, see :ref:`arcana_docs`.
+
+Evaluation and CARE-Score
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If you want to create your own energy fault detection pipeline with the building blocks of this package,
-you can import the data preprocessor, autoencoder, anomaly score and threshold selection classes as follows:
+For evaluation, the package provides:
 
-.. code-block:: python
+- :func:`energy_fault_detector.utils.analysis.create_events` to aggregate
+  point-wise anomaly predictions into contiguous anomaly events, and
+- :class:`energy_fault_detector.evaluation.care_score.CAREScore` to compute
+  the CARE-Score for early fault detection (Coverage, Accuracy, Reliability,
+  Earliness), as introduced in the CARE2Compare paper.
 
-    from energy_fault_detector.data_preprocessing import DataPreprocessor, DataClipper
-    from energy_fault_detector.autoencoders import MultilayerAutoencoder
-    from energy_fault_detector.anomaly_score import MahalanobisScore
-    from energy_fault_detector.threshold_selectors import FbetaSelector
+For now, we recommend using the example notebooks for a full
+walkthrough of the evaluation workflow (event creation, criticality, CARE-Score
+on benchmark datasets such as CARE2Compare and PreDist). A higher-level
+evaluation helper/script may be added in a future version.
 
-This allows you to add additional steps or use different data preprocessing pipelines.
+MultiIndex and sequence models
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-An example training pipeline (similar to the :py:obj:`FaultDetector <energy_fault_detector.fault_detector.FaultDetector>` class)
-would be:
+When using a ``MultiIndex`` for multi-device data, each level should be well-defined, e.g.
+``(asset_id, timestamp)``. However:
 
-.. code-block:: python
+- Sequence-based models **require** a single-device :class:`pandas.DatetimeIndex`.
+  Select one group from a ``MultiIndex`` before passing data to
+  :meth:`FaultDetector.fit <energy_fault_detector.fault_detector.FaultDetector.fit>` or
+  :meth:`FaultDetector.predict <energy_fault_detector.fault_detector.FaultDetector.predict>`.
+- The ``quick_fault_detector`` CLI expects single-device CSV files (one asset per file).
 
-    x = ...  # i.e. sensor data
-    y = ...  # normal behaviour indicator
+For sequence-based models, a :class:`pandas.DatetimeIndex` is required.
+See :doc:`sequence_models` for details on the available sequence autoencoders and their configuration.
 
-    x_normal = x[y]
-    # fit data preprocessor on normal data
-    data_preprocessor = DataPreprocessor(...)
-    x_normal_prepped = data_preprocessor.fit_transform(x_normal)
+More advanced usage
+^^^^^^^^^^^^^^^^^^^
 
-    # fit autoencoder on normal data
-    ae = MultilayerAutoencoder(...)
-    ae.fit(x_normal_prepped)
-
-    # create and fit score
-    anomaly_score = MahalanobisScore(...)
-    x_prepped = data_preprocessor.transform(x)
-
-    # fit on normal data
-    recon_error_normal = ae.get_reconstruction_error(x_normal_prepped)
-    anomaly_score.fit(recon_error_normal)
-    # get scores of all data points
-    recon_error = ae.get_reconstruction_error(x_prepped)
-    scores = anomaly_score.transform(recon_error)
-
-    # set the threshold and get predictions to evaluate
-    threshold_selector = FbetaSelector(beta=1.0)  # sets optimal threshold based on F1 score
-    threshold_selector.fit(scores, y)
-    # NOTE: the fit-method of the AdaptiveThreshold has slightly different arguments!
-    anomalies = threshold_selector.predict(scores)
-
-And the inference:
-
-.. code-block:: python
-
-    x = ...
-
-    x_prepped = data_preprocessor.transform(x)
-    x_recon = ae.predict(x_prepped)  # reconstruction
-    x_recon_error = ae.get_reconstruction_error(x_prepped)
-    scores = anomaly_score.transform(x_recon_error)
-    anomalies = threshold_selector.predict(scores)  # boolean series indicating anomaly detected
+For creating new model classes and building custom pipelines from the building blocks
+(preprocessors, autoencoders, scores, thresholds), see :doc:`advanced_usage`.

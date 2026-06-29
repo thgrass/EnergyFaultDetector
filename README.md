@@ -8,94 +8,124 @@
 
 # Energy Fault Detector - Autoencoder-based Fault Detection for the Future Energy System
 
-**Energy Fault Detector** is an open-source Python package designed for the automated detection of anomalies in
-operational data from renewable energy systems as well as power grids. It uses autoencoder-based normal behaviour
-models to identify irregularities in operational data. In addition to the classic anomaly detection, the package 
-includes the unique “ARCANA” approach for root cause analysis and thus allows interpretable early fault detection. 
-In addition to the pure ML models, the package also contains a range of preprocessing methods, which are particularly 
-useful for analyzing systems in the energy sector. A holistic `EnergyFaultDetector` framework is provided for easy use of all 
-these methods, which can be adapted to the respective use case via a single configuration file.
+[![Python](https://img.shields.io/pypi/pyversions/energy-fault-detector)](https://pypi.org/project/energy-fault-detector/)
+[![PyPI version](https://img.shields.io/pypi/v/energy-fault-detector)](https://pypi.org/project/energy-fault-detector/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Tests](https://github.com/AEFDI/EnergyFaultDetector/actions/workflows/run-tests.yml/badge.svg)](https://github.com/AEFDI/EnergyFaultDetector/actions/workflows/run-tests.yml)
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://aefdi.github.io/EnergyFaultDetector/)
 
-The software is particularly valuable in the context of the future energy system, optimizing the monitoring and enabling
-predictive maintenance of renewable energy assets.
+**Energy Fault Detector** is an open-source Python package for automated anomaly detection in operational data from
+renewable energy systems and power grids. It uses autoencoder-based normal-behaviour models to identify 
+irregularities and includes the [ARCANA](https://doi.org/10.1016/j.egyai.2021.100065) method for interpretable 
+root cause analysis.
 
 <img src="https://raw.githubusercontent.com/AEFDI/EnergyFaultDetector/main/img/OSS-Grafical_abstract2.png" alt="drawing" width="600" style="display: block; margin: 0 auto" />
 
-## Main Features
-- **User-friendly interface**: Easy to use and quick to demo using the [command line interface](#Quick-fault-detection).
-- **Data Preprocessing Module**: Prepares numerical operational data for analysis with the `EnergyFaultDetector`, 
-  with many options such as data clipping, imputation, signal hangers and column selection based on variance and
-  missing values. 
-- **Fault Detection**: Uses autoencoder architectures to model normal operational behavior and identify deviations.
+## Features (at a glance)
+- **User-friendly interface**: One-command CLI (`quick_fault_detector`) demo and a simple Python API.
+- Built-in **data preprocessing** (clipping, imputation, counter→rate, angle transforms, etc.)
+- **Fault Detection**: Autoencoder-based **normal behaviour modelling** for time series and tabular data.
 - **Root Cause Analysis**: Pinpoints the specific sensor values responsible for detected anomalies using [ARCANA](https://doi.org/10.1016/j.egyai.2021.100065).
 - **Scalability**: Algorithms can easily be adapted to various datasets and trained models can be transferred to and
    fine-tuned on similar datasets. Quickly evaluate many different model configurations
+- Support for **benchmark datasets** (CARE2Compare, PreDist) and CARE-Score evaluation
+
+See the [online documentation](https://aefdi.github.io/EnergyFaultDetector/) for concepts, model types, and
+configuration details.
 
 ## Installation
-To install the `energy-fault-detector` package, run: `pip install energy-fault-detector`
+```bash
+pip install energy-fault-detector
+```
+Requirements: Python 3.10–3.12, TensorFlow ≥ 2.15
 
+For development (tests, linting):
+```bash
+pip install energy-fault-detector[dev]
+```
 
-## Quick fault detection
-For a quick demo on a specific dataset, run:
-
-```quick_fault_detector <path_to_your_dataset.csv>```
-
-For more options, run ```quick_fault_detector -h```.
-
-For an example using one of the CARE2Compare datasets, run:
-```quick_fault_detector <path_to_c2c_dataset.csv> --c2c_example```
-
-For more information, have a look at the notebook [Quick Fault Detection](./notebooks/Example%20-%20Quick%20Fault%20Detection.ipynb)
-
-
-## Fault detection quickstart
+## Quickstart
 
 ```python
+import pandas as pd
 from energy_fault_detector import FaultDetector, Config
 from energy_fault_detector.config import generate_quickstart_config
 
-# 1) Generate and save a base config (YAML)
-generate_quickstart_config(output_path="base_config.yaml")
-# 2) Train and predict using the generated config
-fault_detector = FaultDetector(config=Config('base_config.yaml'))
-model_data = fault_detector.train(sensor_data=sensor_data, normal_index=normal_index)
-results = fault_detector.predict(sensor_data=test_sensor_data)
+### 1. Load your data
+df = pd.read_csv("my_data.csv", parse_dates=["timestamp"], index_col="timestamp")
+sensor_data = df[["power", "wind_speed", "pitch"]]
+normal_index = df["status"] == "normal"  # optional boolean mask
+
+### 2. Generate a default configuration
+config = generate_quickstart_config()
+
+### 3. Train a normal-behaviour model
+fault_detector = FaultDetector(config=config, model_directory="my_model")
+fault_detector.fit(sensor_data=sensor_data, normal_index=normal_index)
+
+### 4. Predict anomalies
+results = fault_detector.predict(sensor_data=sensor_data)
+
+print(results.predicted_anomalies.sum(), "anomalies detected")
 ```
 
-The pandas `DataFrame` `sensor_data` contains the operational data in wide format with the timestamp as index, the
-pandas `Series` `normal_index` indicates which timestamps are considered 'normal' operation and can be used to create
-a normal behaviour model. The [`base_config.yaml`](energy_fault_detector/base_config.yaml) file contains the model 
-settings, an example is found [here](energy_fault_detector/base_config.yaml).
+More examples: [Usage examples](https://aefdi.github.io/EnergyFaultDetector/usage_examples.html).
 
+## Quick Fault Detection (CLI)
+Run the full pipeline (train → predict → events → ARCANA) in a single command:
+```bash
+quick_fault_detector path/to/data.csv
+```
+For [CARE2Compare](https://doi.org/10.5281/zenodo.14958989) data:
+```bash
+quick_fault_detector path/to/c2c_dataset.csv --c2c_example
+```
+The CLI saves plots and CSV results to a results directory.
+See the [CLI documentation](https://aefdi.github.io/EnergyFaultDetector/quick_fault_detection.html) for details.
+
+## Documentation
+Full docs (concepts, available models, configuration reference, evaluation, and examples): [https://aefdi.github.io/EnergyFaultDetector/](https://aefdi.github.io/EnergyFaultDetector/)
+
+## Examples and notebooks
+
+The repository contains Jupyter notebooks with end-to-end examples and evaluation workflows in the
+[`notebooks/`](./notebooks) folder, for example:
+
+- Quick fault detection on a CSV file
+- Standard `FaultDetector` training and prediction
+- Sequence models (LSTM/CNN) on time-series data
+- CARE2Compare and PreDist benchmark evaluations
+
+These notebooks complement the documentation and are a good starting point for interactive exploration.
+
+## Contributing
+Contributions are welcome! Please feel free to open issues or submit pull requests.
+All contributions, bug reports, bug fixes, documentation improvements, enhancements, and ideas are welcome.
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute.
+
+### Planned updates and features
+
+- Demo: Easy demo website
+- Extending the core models:
+   - Variational autoencoders
+   - Model ensembles
+- Unification, standardisation and generic improvements
+   - Data preparation (e.g. extend imputation strategies).
+   - No or low configuration need (e.g. use defaults where possible).
+   - Upgrade to Keras 3.0
+- Root cause analysis expansion
+   - integrate SHAP and possibly other xAI-methods.
+- Integrations
+   - logging/tracking to MLFlow for hyperparameter tuning and easy model deployment.
+   - Edge deployment
+
+## License
+This project is licensed under the [MIT License](./LICENSE).
 
 ## Background
 This project was initially developed by the research team AEFDI at the Fraunhofer IEE in the research project ADWENTURE (funded by the German Federal Ministry for Economic Affairs and Climate Action (BMWK)), 
 to create a software for early fault detection in wind turbines. The software was developed in such a way that the algorithms do not depend on a specific data source
 and can be applied to other use cases as well.
-
-## Documentation
-Comprehensive documentation is available [here](https://aefdi.github.io/EnergyFaultDetector/).
-
-## Contributing
-Contributions are welcome! Please feel free to open issues or submit pull requests.
-All contributions, bug reports, bug fixes, documentation improvements, enhancements, and ideas are welcome.
-
-### Planned updates and features
-1. More autoencoder types:
-   1. Variational autoencoders
-   2. CNN- and LSTM-based autoencoders with time-series support.
-
-2. Unification, standardisation and generic improvements
-   1. Additional options for all autoencoders (e.g. drop out, regularization)
-   2. Data preparation (e.g. extend imputation strategies).
-   3. No or low configuration need (e.g. use defaults where possible).
-   4. Upgrade to Keras 3.0
-
-3. Root cause analysis expansion
-   1. integrate SHAP and possibly other XAI-methods.
-
-## License
-This project is licensed under the [MIT License](./LICENSE).
 
 ## References
 If you use this work, please cite us:
