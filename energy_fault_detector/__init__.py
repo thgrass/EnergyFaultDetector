@@ -35,7 +35,13 @@ from energy_fault_detector.data_sources import (
     TCPStreamDataSource,
     LineDelimitedTCPDataSource,
     MQTTStreamDataSource,
-    JSONMQTTDataSource
+    JSONMQTTDataSource,
+    # OpenPMU
+    OpenPMUUDPDataSource,
+    OpenPMUParser,
+    OpenPMUDatagram,
+    OpenPMUChannel,
+    OpenPMUGenerator
 )
 
 # Register models and other classes
@@ -107,6 +113,12 @@ __all__ = [
     "LineDelimitedTCPDataSource",
     "MQTTStreamDataSource",
     "JSONMQTTDataSource",
+    # OpenPMU
+    "OpenPMUUDPDataSource",
+    "OpenPMUParser",
+    "OpenPMUDatagram",
+    "OpenPMUChannel",
+    "OpenPMUGenerator",
     "DataBuffer",
     "SlidingWindowBuffer",
     "StreamingResult",

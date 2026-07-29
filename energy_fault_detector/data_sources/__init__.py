@@ -1,7 +1,7 @@
 """Data source module for streaming data support.
 
 This module provides abstract and concrete implementations for various data sources,
-including real-time streams (UDP, TCP, MQTT) and synthetic streams (CSV, Parquet).
+including real-time streams (UDP, TCP, MQTT, OpenPMU) and synthetic streams (CSV, Parquet).
 """
 
 from energy_fault_detector.data_sources.base import DataSource, StreamConfig, DataBatch
@@ -18,7 +18,12 @@ from energy_fault_detector.data_sources.network import (
     TCPStreamDataSource,
     LineDelimitedTCPDataSource,
     MQTTStreamDataSource,
-    JSONMQTTDataSource
+    JSONMQTTDataSource,
+    OpenPMUUDPDataSource,
+    OpenPMUParser,
+    OpenPMUDatagram,
+    OpenPMUChannel,
+    OpenPMUGenerator
 )
 
 __all__ = [
@@ -35,4 +40,10 @@ __all__ = [
     "LineDelimitedTCPDataSource",
     "MQTTStreamDataSource",
     "JSONMQTTDataSource",
+    # OpenPMU
+    "OpenPMUUDPDataSource",
+    "OpenPMUParser",
+    "OpenPMUDatagram",
+    "OpenPMUChannel",
+    "OpenPMUGenerator",
 ]
