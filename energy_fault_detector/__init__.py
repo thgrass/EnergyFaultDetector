@@ -18,7 +18,13 @@ from energy_fault_detector.streaming import (
     DataBuffer,
     SlidingWindowBuffer,
     StreamingResult,
-    BatchResult
+    BatchResult,
+    # Window processing
+    WindowProcessor,
+    ContinuousStreamingFaultDetector,
+    ContinuousStreamingResult,
+    WindowConfig,
+    WindowResult
 )
 
 # Import data sources
@@ -119,8 +125,15 @@ __all__ = [
     "OpenPMUDatagram",
     "OpenPMUChannel",
     "OpenPMUGenerator",
+    # Buffer and streaming
     "DataBuffer",
     "SlidingWindowBuffer",
     "StreamingResult",
     "BatchResult",
+    # Window processing
+    "WindowProcessor",
+    "ContinuousStreamingFaultDetector",
+    "ContinuousStreamingResult",
+    "WindowConfig",
+    "WindowResult",
 ]
