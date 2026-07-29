@@ -37,6 +37,23 @@ This directory contains Jupyter notebooks demonstrating the streaming capabiliti
 - How to create custom data sources
 - Advanced visualization techniques
 
+### 3. [03_Network_Streams.ipynb](./03_Network_Streams.ipynb)
+**Level:** Intermediate/Advanced  
+**Duration:** 20-25 minutes  
+**Description:** Network-based streaming data sources. Covers:
+- UDP stream data sources
+- Phasor UDP data sources (IEEE C37.118 compatible)
+- TCP stream data sources
+- MQTT stream data sources
+- Integration with StreamingFaultDetector
+
+**What you'll learn:**
+- How to use UDP for high-speed data acquisition
+- How to process phasor measurement unit (PMU) data
+- How to use TCP for reliable data streams
+- How to use MQTT for IoT and sensor networks
+- How to integrate network sources with fault detection
+
 ## Prerequisites
 
 To run these notebooks, you need:
@@ -53,6 +70,10 @@ To run these notebooks, you need:
 4. **Required dependencies**:
    ```bash
    pip install pandas numpy matplotlib
+   ```
+5. **Optional dependencies** (for network streams):
+   ```bash
+   pip install paho-mqtt
    ```
 
 ## Running the Notebooks
@@ -82,32 +103,47 @@ jupyter lab
    ```python
    !pip install energy-fault-detector
    ```
-3. Run the cells
+3. Install optional dependencies:
+   ```python
+   !pip install paho-mqtt
+   ```
+4. Run the cells
 
 ## Data Requirements
 
 The notebooks use synthetic data by default, so no external data files are required. However, if you want to use your own data:
 
 - **CSV files**: Should have a consistent structure with sensor readings
-- **Timestamp column**: Recommended for time-series analysis
-- **Normal data**: Required for training the fault detection model
+- **Network data**: Requires appropriate network infrastructure
+- **MQTT**: Requires a running MQTT broker (e.g., Mosquitto)
 
-## Tips for Running Notebooks
+## Learning Path
 
-1. **Start with the Quick Start notebook** if you're new to streaming
-2. **Run cells sequentially** - some cells depend on previous ones
-3. **Check memory usage** - streaming can use significant memory for large datasets
-4. **Adjust parameters** - feel free to change batch sizes, window sizes, etc.
-5. **Monitor performance** - use the performance analysis sections to optimize
+1. **Beginner**: Start with `01_Streaming_Quick_Start.ipynb`
+2. **Intermediate**: Move to `02_Advanced_Streaming.ipynb`
+3. **Network Streaming**: Try `03_Network_Streams.ipynb`
+4. **Integration**: Connect to real data streams in your applications
 
-## Customization
+## Network Stream Testing
 
-You can customize the notebooks by:
+For testing network streams without actual network infrastructure:
 
-- **Changing data sources**: Replace synthetic data with your own CSV files
-- **Adjusting configurations**: Modify StreamConfig and StreamingConfig parameters
-- **Adding more analysis**: Extend the visualization and analysis sections
-- **Integrating with your systems**: Connect to real data streams
+- **UDP/TCP**: The notebooks include simulator classes that create test data
+- **MQTT**: Requires a running MQTT broker. You can use:
+  ```bash
+  # Using Docker
+  docker run -d -p 1883:1883 eclipse-mosquitto
+  
+  # Or install Mosquitto locally
+  sudo apt-get install mosquitto mosquitto-clients
+  ```
+
+## Additional Resources
+
+- [Streaming Guide](../../docs/streaming/streaming_guide.md) - Comprehensive documentation
+- [Network Streams Guide](../../docs/streaming/network_streams.md) - Network-specific documentation
+- [API Reference](../../docs/streaming/streaming_guide.md#api-reference) - Detailed API documentation
+- [Main Documentation](../../docs/) - Complete EnergyFaultDetector documentation
 
 ## Troubleshooting
 
@@ -117,27 +153,18 @@ Make sure EnergyFaultDetector is installed:
 pip install energy-fault-detector
 ```
 
-**Issue: Import errors**  
-Check that you're using Python 3.10-3.12 and all dependencies are installed.
+**Issue: Import errors for network modules**  
+Install the required dependencies:
+```bash
+pip install paho-mqtt
+```
+
+**Issue: Connection errors**  
+- For UDP/TCP: Check firewall settings and port availability
+- For MQTT: Verify the broker is running and accessible
 
 **Issue: Slow performance**  
 Reduce batch_size, buffer_size, or use smaller datasets for testing.
-
-**Issue: Memory errors**  
-Reduce buffer_size, window_size, or process data in smaller chunks.
-
-## Learning Path
-
-1. **Beginner**: Start with `01_Streaming_Quick_Start.ipynb`
-2. **Intermediate**: Move to `02_Advanced_Streaming.ipynb`
-3. **Advanced**: Create your own notebooks using the patterns from these examples
-4. **Integration**: Connect to real data streams in your applications
-
-## Additional Resources
-
-- [Streaming Guide](../../docs/streaming/streaming_guide.md) - Comprehensive documentation
-- [API Reference](../../docs/streaming/streaming_guide.md#api-reference) - Detailed API documentation
-- [Main Documentation](../../docs/) - Complete EnergyFaultDetector documentation
 
 ## Feedback
 

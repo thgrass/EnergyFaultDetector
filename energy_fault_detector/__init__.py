@@ -28,7 +28,14 @@ from energy_fault_detector.data_sources import (
     DataBatch,
     CSVStreamDataSource,
     SimulatedFaultDataSource,
-    SineWaveDataSource
+    SineWaveDataSource,
+    # Network sources
+    UDPStreamDataSource,
+    PhasorUDPDataSource,
+    TCPStreamDataSource,
+    LineDelimitedTCPDataSource,
+    MQTTStreamDataSource,
+    JSONMQTTDataSource
 )
 
 # Register models and other classes
@@ -93,6 +100,13 @@ __all__ = [
     "CSVStreamDataSource",
     "SimulatedFaultDataSource",
     "SineWaveDataSource",
+    # Network sources
+    "UDPStreamDataSource",
+    "PhasorUDPDataSource",
+    "TCPStreamDataSource",
+    "LineDelimitedTCPDataSource",
+    "MQTTStreamDataSource",
+    "JSONMQTTDataSource",
     "DataBuffer",
     "SlidingWindowBuffer",
     "StreamingResult",

@@ -11,9 +11,15 @@ from energy_fault_detector.data_sources.synthetic import (
     SineWaveDataSource
 )
 
-# Real stream sources (will be added in Phase 2)
-# from energy_fault_detector.data_sources.udp_stream import UDPPhasorDataSource
-# from energy_fault_detector.data_sources.tcp_stream import TCPStreamDataSource
+# Network stream sources
+from energy_fault_detector.data_sources.network import (
+    UDPStreamDataSource,
+    PhasorUDPDataSource,
+    TCPStreamDataSource,
+    LineDelimitedTCPDataSource,
+    MQTTStreamDataSource,
+    JSONMQTTDataSource
+)
 
 __all__ = [
     "DataSource",
@@ -22,4 +28,11 @@ __all__ = [
     "CSVStreamDataSource",
     "SimulatedFaultDataSource",
     "SineWaveDataSource",
+    # Network sources
+    "UDPStreamDataSource",
+    "PhasorUDPDataSource",
+    "TCPStreamDataSource",
+    "LineDelimitedTCPDataSource",
+    "MQTTStreamDataSource",
+    "JSONMQTTDataSource",
 ]
