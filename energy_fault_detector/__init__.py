@@ -9,8 +9,27 @@ setup_logging(Path(__file__).parent / 'logging.yaml')
 
 from energy_fault_detector.registration import registry, register
 from energy_fault_detector.fault_detector import FaultDetector
-from energy_fault_detector.config import Config
+from energy_fault_detector.config import Config, StreamingConfig
 from energy_fault_detector.quick_fault_detection import quick_fault_detector
+
+# Import streaming components
+from energy_fault_detector.streaming import (
+    StreamingFaultDetector,
+    DataBuffer,
+    SlidingWindowBuffer,
+    StreamingResult,
+    BatchResult
+)
+
+# Import data sources
+from energy_fault_detector.data_sources import (
+    DataSource,
+    StreamConfig,
+    DataBatch,
+    CSVStreamDataSource,
+    SimulatedFaultDataSource,
+    SineWaveDataSource
+)
 
 # Register models and other classes
 # class types: autoencoder, anomaly_score, threshold_selector
@@ -66,4 +85,16 @@ register(module_path='energy_fault_detector.threshold_selectors.adaptive_thresho
 __all__ = [
     "FaultDetector",
     "Config",
+    "StreamingConfig",
+    "StreamingFaultDetector",
+    "DataSource",
+    "StreamConfig",
+    "DataBatch",
+    "CSVStreamDataSource",
+    "SimulatedFaultDataSource",
+    "SineWaveDataSource",
+    "DataBuffer",
+    "SlidingWindowBuffer",
+    "StreamingResult",
+    "BatchResult",
 ]
